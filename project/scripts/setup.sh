@@ -107,6 +107,17 @@ for ID in $(wpcli post list --format=ids); do
 done
 
 
+echo "🌐 Installation de Polylang..."
+wpcli plugin install polylang --activate
+
+# Installer les langues système
+wpcli language core install fr_FR
+wpcli language core install en_US
+wpcli language core activate fr_FR
+
+# Mettre le site en français par défaut (WordPress général)
+wpcli option update WPLANG fr_FR
+
 
 echo "🎨 Installation du thème GeneratePress..."
 wget -qO generatepress.zip https://downloads.wordpress.org/theme/generatepress.3.5.1.zip
@@ -120,12 +131,29 @@ sudo chown -R 33:33 wp/wp-content/themes/generatepress
 sudo find wp/wp-content/themes/generatepress -type d -exec chmod 755 {} \;
 sudo find wp/wp-content/themes/generatepress -type f -exec chmod 644 {} \;
 
+
+
+
+# Permissions
+sudo chown -R 33:33 "$CHILD_DIR"
+sudo find "$CHILD_DIR" -type d -exec chmod 755 {} \;
+sudo find "$CHILD_DIR" -type f -exec chmod 644 {} \;
+
+# Activer le thème enfant
+wpcli theme activate generatepress-child
 echo "👶 Thème enfant..."
 mkdir -p wp/wp-content/themes/generatepress-child
 sudo mkdir -p wp/wp-content/themes/generatepress-child
 sudo chown -R $USER:$USER wp/wp-content/themes/generatepress-child
 sudo chmod -R 755 wp/wp-content/themes/generatepress-child
-cp ./assets/functions.php wp/wp-content/themes/generatepress-child/functions.php
+echo "👶 Génération du thème enfant depuis assets/..."
+CHILD_DIR="wp/wp-content/themes/generatepress-child"
+rm -rf "$CHILD_DIR"
+mkdir -p "$CHILD_DIR"
+
+cp ./assets/functions.php "$CHILD_DIR/functions.php"
+cp ./assets/style.css "$CHILD_DIR/style.css"
+# cp ./assets/functions.php wp/wp-content/themes/generatepress-child/functions.php
 cat << 'EOF' > wp/wp-content/themes/generatepress-child/style.css
 /*
 Theme Name: GeneratePress Child
@@ -153,6 +181,18 @@ sudo find wp/wp-content/uploads/custom/css -type f -exec chmod 644 {} \;
 echo "🔁 Permaliens..."
 wpcli rewrite structure "/%postname%/"
 wpcli rewrite flush --hard
+
+
+
+echo "le logo"
+echo "✅ Fix des permissions avant import du logo..."
+sudo chown -R 33:33 wp/wp-content/uploads
+sudo find wp/wp-content/uploads -type d -exec chmod 755 {} \;
+sudo find wp/wp-content/uploads -type f -exec chmod 644 {} \;
+
+# Ajouter le logo du site
+LOGO_ID=$(wpcli media import /assets/logo.png --title="Logo" --porcelain)
+wpcli theme mod set custom_logo "$LOGO_ID"
 
 # Créer un menu principal s'il n'existe pas déjà
 echo "📋 Création d'un menu principal..."

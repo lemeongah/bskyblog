@@ -55,24 +55,7 @@ function add_custom_logo_script()
         $home_url = '/';
     }
     ?>
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function () {
-            // Créer un élément pour le logo
-            var logoHtml = '<div class="site-logo"><a href="<?php echo $home_url; ?>" title="Blog Bsky"><img src="<?php echo $logo_url; ?>" alt="Blog bskygrowth"></a></div>';
 
-            // Ajouter le logo au début de l'en-tête et masquer le titre
-            var header = document.querySelector('.inside-header');
-            if (header) {
-                header.insertAdjacentHTML('afterbegin', logoHtml);
-
-                // Masquer le titre du site et la description
-                var siteTitle = header.querySelector('.site-branding');
-                if (siteTitle) {
-                    siteTitle.style.display = 'none';
-                }
-            }
-        });
-    </script>
     <?php
 }
 add_action('wp_footer', 'add_custom_logo_script');
@@ -120,12 +103,12 @@ if (is_production()) {
     add_filter('the_content', 'fix_mixed_content', 99);
     add_filter('widget_text_content', 'fix_mixed_content', 99);
     add_filter('wp_get_attachment_url', 'fix_mixed_content', 99);
-    add_filter( 'generate_sidebar_layout', function( $layout ) {
-        if ( is_page() || is_single() ) {
+    add_filter('generate_sidebar_layout', function ($layout) {
+        if (is_page() || is_single()) {
             return 'no-sidebar';
         }
         return $layout;
-    } );
+    });
 
     // Forcer HTTPS dans les URLs d'images
     function force_https_for_images($image, $attachment_id, $size, $icon)
@@ -141,35 +124,35 @@ if (is_production()) {
 // Désactiver le footer original de GeneratePress et ajouter le nôtre
 add_action('init', 'setup_custom_footer');
 
-add_action( 'wp_footer', function () {
-    if ( is_front_page() || is_page() ) { // ou ajuste selon besoin
+add_action('wp_footer', function () {
+    if (is_front_page() || is_page()) { // ou ajuste selon besoin
         ?>
         <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const items = document.querySelectorAll('.wp-block-latest-posts__list.is-grid li');
-            items.forEach(function (li) {
-                const link = li.querySelector('.wp-block-latest-posts__post-title');
-                if (!link) return;
+            document.addEventListener('DOMContentLoaded', function () {
+                const items = document.querySelectorAll('.wp-block-latest-posts__list.is-grid li');
+                items.forEach(function (li) {
+                    const link = li.querySelector('.wp-block-latest-posts__post-title');
+                    if (!link) return;
 
-                const href = link.getAttribute('href');
-                const wrapper = document.createElement('a');
-                wrapper.href = href;
-                wrapper.className = 'full-post-link';
-                wrapper.style.display = 'block';
-                wrapper.style.textDecoration = 'none';
-                wrapper.style.color = 'inherit';
+                    const href = link.getAttribute('href');
+                    const wrapper = document.createElement('a');
+                    wrapper.href = href;
+                    wrapper.className = 'full-post-link';
+                    wrapper.style.display = 'block';
+                    wrapper.style.textDecoration = 'none';
+                    wrapper.style.color = 'inherit';
 
-                // Copie tout le contenu de li dans le <a>
-                while (li.firstChild) {
-                    wrapper.appendChild(li.firstChild);
-                }
-                li.appendChild(wrapper);
+                    // Copie tout le contenu de li dans le <a>
+                    while (li.firstChild) {
+                        wrapper.appendChild(li.firstChild);
+                    }
+                    li.appendChild(wrapper);
+                });
             });
-        });
         </script>
         <?php
     }
-} );
+});
 
 function setup_custom_footer()
 {
@@ -183,12 +166,12 @@ function setup_custom_footer()
     // Ajouter notre propre footer
     add_action('generate_footer', 'action_custom_footer');
 }
-add_filter( 'generate_sidebar_layout', function( $layout ) {
-    if ( is_page() || is_single() ) {
+add_filter('generate_sidebar_layout', function ($layout) {
+    if (is_page() || is_single()) {
         return 'no-sidebar';
     }
     return $layout;
-} );
+});
 
 // Fonction pour afficher notre footer personnalisé
 function action_custom_footer()
@@ -234,8 +217,53 @@ function create_footer_template()
 add_action('after_switch_theme', 'create_footer_template');
 add_action('generate_after_header', function () {
     if (function_exists('pll_the_languages')) {
-        echo '<div class="lang-switcher">';
-        pll_the_languages(['show_flags' => 1, 'show_names' => 0]);
-        echo '</div>';
+        $languages = pll_the_languages([
+            'raw' => true,
+            'hide_if_empty' => 0,
+        ]);
+
+        if (!empty($languages)) {
+            echo '<form class="lang-switcher-form" method="get">';
+            echo '<select onchange="if(this.value) window.location.href=this.value;">';
+
+            foreach ($languages as $lang) {
+                $selected = $lang['current_lang'] ? 'selected' : '';
+                $name = strtoupper($lang['slug']);
+                $url = $lang['url'];
+
+                echo '<option value="' . esc_url($url) . '" ' . $selected . '>' . esc_html($name) . '</option>';
+            }
+
+            echo '</select>';
+            echo '</form>';
+        }
     }
 });
+add_filter('wp_nav_menu_items', 'add_language_switcher_to_menu', 10, 2);
+
+
+add_filter('wp_nav_menu_items', 'add_language_switcher_to_menu', 10, 2);
+function add_language_switcher_to_menu($items, $args)
+{
+    // Prend en compte les emplacements pour Polylang
+    $menu_locations = ['primary-menu', 'primary_fr', 'primary_en'];
+
+    if (in_array($args->theme_location, $menu_locations) && function_exists('pll_the_languages')) {
+        $langs = pll_the_languages([
+            'raw' => 1,
+            'hide_if_empty' => 0,
+        ]);
+
+        $current_lang = pll_current_language();
+        $switcher = '<select class="lang-switcher-select" onchange="if(this.value) window.location.href=this.value">';
+        foreach ($langs as $lang) {
+            $selected = $lang['slug'] === $current_lang ? ' selected' : '';
+            $switcher .= '<option value="' . esc_url($lang['url']) . '"' . $selected . '>' . esc_html(strtoupper($lang['slug'])) . '</option>';
+        }
+        $switcher .= '</select>';
+
+        $items .= '<li class="menu-item lang-switcher-item">' . $switcher . '</li>';
+    }
+
+    return $items;
+}

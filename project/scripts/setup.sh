@@ -231,9 +231,9 @@ wpcli menu location assign "Menu Principal" primary
 
 # Création des catégories et des pages liées
 CATEGORIES=(
-  "ugc-parents|Parents"
-  "ugc-marques|Marques"
-  "ugc-enfants|Enfants"
+  "social-trends|Tendances Social Media"
+  "strategies| Stratégies pour Performer"
+  "tools|Outils & IA"
 )
 
 for entry in "${CATEGORIES[@]}"; do

@@ -71,3 +71,5 @@ wp-config.php
 node_modules
 .env
 wp/wp-config.php
+/project/wp/
+project/wp/

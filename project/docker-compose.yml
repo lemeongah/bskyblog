@@ -25,9 +25,8 @@ services:
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./wp:/var/www/html
-      # - ./assets:/var/www/html/wp-content/themes/generatepress-child/assets
+      - ./assets:/var/www/html/wp-content/themes/generatepress-child/
       - ./assets:/var/www/html/wp-content/uploads/custom
-      - ./child-theme:/var/www/html/wp-content/themes/generatepress-child
 
       # Le fichier styles.css sera accessible dans /var/www/html/wp-content/uploads/custom/css/styles.css
       # via le montage du dossier assets ci-dessus

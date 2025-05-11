@@ -131,13 +131,32 @@ sudo chown -R 33:33 wp/wp-content/themes/generatepress
 sudo find wp/wp-content/themes/generatepress -type d -exec chmod 755 {} \;
 sudo find wp/wp-content/themes/generatepress -type f -exec chmod 644 {} \;
 
+echo "👶 Génération du thème enfant depuis assets/..."
+CHILD_DIR="wp/wp-content/themes/generatepress-child"
+rm -rf "$CHILD_DIR"
+mkdir -p "$CHILD_DIR"
 
+# Copier uniquement ce qui existe
+cp ./assets/functions.php "$CHILD_DIR/functions.php" || echo "⚠️ functions.php non trouvé"
+cp ./assets/footer.html "$CHILD_DIR/footer.html" || echo "ℹ️ footer.html pas obligatoire"
 
+# Génération du style.css
+cat << 'EOF' > "$CHILD_DIR/style.css"
+/*
+Theme Name: GeneratePress Child
+Template: generatepress
+Version: 1.0
+*/
+EOF
 
 # Permissions
 sudo chown -R 33:33 "$CHILD_DIR"
 sudo find "$CHILD_DIR" -type d -exec chmod 755 {} \;
 sudo find "$CHILD_DIR" -type f -exec chmod 644 {} \;
+
+# Activation
+wpcli theme activate generatepress-child
+
 
 # Activer le thème enfant
 wpcli theme activate generatepress-child
@@ -171,7 +190,7 @@ echo "🖼️ Copie des assets..."
 sudo mkdir -p wp/wp-content/uploads/custom/css
 sudo chown -R $USER:$USER wp/wp-content/uploads/custom
 cp -r ./assets/* wp/wp-content/uploads/custom/
-cp ./assets/css/styles.css wp/wp-content/uploads/custom/css/styles.css
+cp ./assets/style.css wp/wp-content/uploads/custom/css/styles.css
 sudo chown -R 33:33 wp/wp-content/uploads/custom
 sudo find wp/wp-content/uploads/custom -type d -exec chmod 755 {} \;
 sudo find wp/wp-content/uploads/custom -type f -exec chmod 644 {} \;
@@ -194,32 +213,83 @@ sudo find wp/wp-content/uploads -type f -exec chmod 644 {} \;
 LOGO_ID=$(wpcli media import /assets/logo.png --title="Logo" --porcelain)
 wpcli theme mod set custom_logo "$LOGO_ID"
 
-# Créer un menu principal s'il n'existe pas déjà
-echo "📋 Création d'un menu principal..."
-docker compose run --rm wpcli menu create "Menu Principal" 2>/dev/null || true
-docker compose run --rm wpcli menu location assign "Menu Principal" primary 2>/dev/null || true
+echo "📋 (Re)Création du menu principal avec les catégories..."
+wpcli menu delete "Menu Principal" 2>/dev/null || true
+wpcli menu create "Menu Principal"
+wpcli menu location assign "Menu Principal" primary
 
-# Ajouter quelques pages de base
-echo "📄 Création de pages de base..."
-docker compose run --rm wpcli post create --post_type=page --post_status=publish --post_title="Accueil" --post_content="Bienvenue!"
-docker compose run --rm wpcli post create --post_type=page --post_status=publish --post_title="À propos" --post_content="Page à propos"
-docker compose run --rm wpcli post create --post_type=page --post_status=publish --post_title="Contact" --post_content="Contactez-nous"
+echo "🏷️ Création des catégories, pages et ajout au menu..."
+CATEGORIES=(
+  "ugc-parents|Parents"
+  "ugc-marques|Marques"
+  "ugc-enfants|Enfants"
+)
+echo "📋 (Re)Création du menu principal avec les catégories..."
+wpcli menu delete "Menu Principal" 2>/dev/null || true
+wpcli menu create "Menu Principal"
+wpcli menu location assign "Menu Principal" primary
 
-# Configurer la page d'accueil
-echo "🏠 Configuration de la page d'accueil..."
-HOME_ID=$(docker compose run --rm wpcli post list --post_type=page --name=accueil --field=ID --format=csv | tr -d '\r')
-docker compose run --rm wpcli option update page_on_front "$HOME_ID"
-docker compose run --rm wpcli option update show_on_front "page"
+# Création des catégories et des pages liées
+CATEGORIES=(
+  "ugc-parents|Parents"
+  "ugc-marques|Marques"
+  "ugc-enfants|Enfants"
+)
 
-# Ajouter les pages au menu
-echo "🔗 Ajout des pages au menu..."
-HOME_ID=$(docker compose run --rm wpcli post list --post_type=page --name=accueil --field=ID --format=csv | tr -d '\r')
-ABOUT_ID=$(docker compose run --rm wpcli post list --post_type=page --name=a-propos --field=ID --format=csv | tr -d '\r')
-CONTACT_ID=$(docker compose run --rm wpcli post list --post_type=page --name=contact --field=ID --format=csv | tr -d '\r')
+for entry in "${CATEGORIES[@]}"; do
+  IFS="|" read -r slug label <<< "$entry"
 
-docker compose run --rm wpcli menu item add-post "Menu Principal" "$HOME_ID" --title="Accueil" 2>/dev/null || true
-docker compose run --rm wpcli menu item add-post "Menu Principal" "$ABOUT_ID" --title="À propos" 2>/dev/null || true
-docker compose run --rm wpcli menu item add-post "Menu Principal" "$CONTACT_ID" --title="Contact" 2>/dev/null || true
+  wpcli term create category "$label" --slug="$slug" 2>/dev/null || true
+
+  page_id=$(wpcli post create \
+    --post_type=page \
+    --post_status=publish \
+    --post_title="$label" \
+    --porcelain)
+
+  wpcli post meta add "$page_id" _generate_hide_title true
+
+  # Bloc WP avec filtre par catégorie
+  block="<!-- wp:latest-posts {\
+\"categories\":[\"$slug\"],\
+\"displayPostContent\":true,\
+\"excerptLength\":20,\
+\"displayPostDate\":true,\
+\"displayFeaturedImage\":true,\
+\"featuredImageSizeSlug\":\"medium\"} /
+\"layout\":{\"type\":\"grid\",\"columns\":3} } /-->"
+
+
+  wpcli post update "$page_id" --post_content="$block"
+
+  wpcli menu item add-post "Menu Principal" "$page_id" --title="$label"
+done
+
+# Création de la page d'accueil
+echo "🏠 Création de la page d'accueil..."
+HOME_ID=$(wpcli post create \
+  --post_type=page \
+  --post_status=publish \
+  --post_title="Accueil" \
+  --porcelain)
+
+wpcli post meta add "$HOME_ID" _generate_hide_title true
+
+home_block="<!-- wp:latest-posts {\
+\"displayPostContent\":true,\
+\"excerptLength\":20,\
+\"displayPostDate\":true,\
+\"displayFeaturedImage\":true,\
+\"featuredImageSizeSlug\":\"medium\"} /
+\"layout\":{\"type\":\"grid\",\"columns\":3} } /-->"
+
+wpcli post update "$HOME_ID" --post_content="$home_block"
+
+# Définir la page d'accueil statique
+wpcli option update show_on_front page
+wpcli option update page_on_front "$HOME_ID"
+
+
 
 
 echo "🛠️ Fixe final des permissions..."

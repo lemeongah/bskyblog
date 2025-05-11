@@ -83,7 +83,11 @@ body {
 	padding: 0;
 	background-color: none !important;
 }
-
+/*  WIDGET FOOTER */
+.footer-widgets .widget {
+	font-size: 1rem !important;
+	line-height: 1rem;
+}
 /* les articles */
 .wp-block-latest-posts.is-grid li {
 	display: flex;
@@ -107,37 +111,51 @@ body {
 	color: var(--secondary-color);
 	text-decoration: underline;
 }
+.menu .lang-switcher-item {
+	list-style: none;
+}
+
+.lang-switcher-item::marker {
+	display: none;
+}
+
+.lang-switcher-select {
+	margin: 0;
+	padding: 4px 8px;
+	font-size: 0.9em;
+}
+.lang-switcher-item {
+	list-style: none !important;
+}
 
 .lang-switcher {
-    position: relative;
-    margin-left: 15rem;
-    display: inline-block;
-    z-index: 999;
-  }
-  
-  .lang-switcher-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .lang-switcher-list li {
-    display: none;
-    background: white;
-    padding: 0.5em 1em;
-    white-space: nowrap;
-    border: 1px solid #ddd;
-  }
-  
-  .lang-switcher-list li:first-child {
-    display: block;
-    cursor: pointer;
-  }
-  
-  .lang-switcher:hover .lang-switcher-list li {
-    display: block;
-  }
-  
+	position: relative;
+	margin-left: 15rem;
+	display: inline-block;
+	z-index: 999;
+}
+
+.lang-switcher-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.lang-switcher-list li {
+	display: none;
+	background: white;
+	padding: 0.5em 1em;
+	white-space: nowrap;
+}
+
+.lang-switcher-list li:first-child {
+	display: block;
+	cursor: pointer;
+}
+
+.lang-switcher:hover .lang-switcher-list li {
+	display: block;
+}
 
 /* Lien du menu */
 .main-nav a {

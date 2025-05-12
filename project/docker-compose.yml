@@ -8,7 +8,7 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - db_data_bsky:/var/lib/mysql
+      - bskyblog_db_data:/var/lib/mysql
 
   wordpress:
     build: .
@@ -45,4 +45,4 @@ services:
     user: "33:33"
 
 volumes:
-  db_data_bsky:
+  bskyblog_db_data:

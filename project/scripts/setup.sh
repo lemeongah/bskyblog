@@ -9,8 +9,25 @@ export WP_CLI_PHP_ARGS='-d memory_limit=512M'
 ENVIRONMENT="${ENV:-$( [[ "$SITE_URL" == *"localhost"* ]] && echo "local" || echo "prod" )}"
 echo "🌍 Environnement : $ENVIRONMENT"
 
-echo "🧼 Nettoyage..."
-docker compose down -v || true
+RESET_DB=false
+
+if [[ "$1" == "--reset" ]]; then
+  RESET_DB=true
+fi
+
+echo "🧼 Nettoyage containers..."
+docker compose down || true
+
+if [ "$RESET_DB" = true ]; then
+  echo "🧨 Suppression du volume de base de données (option --reset)..."
+  VOLUME_NAME=$(docker volume ls --format '{{.Name}}' | grep "${COMPOSE_PROJECT_NAME:-$(basename "$PWD")}_db_data")
+  if [[ -n "$VOLUME_NAME" ]]; then
+    docker volume rm "$VOLUME_NAME" || true
+  fi
+else
+  echo "✅ Volume base de données conservé."
+fi
+echo "🧼 Nettoyage des fichiers temporaires..."
 sudo rm -rf wp tmp_wordpress generatepress.zip
 mkdir -p wp tmp_wordpress
 

@@ -29,34 +29,7 @@ if (!defined('ABSPATH')) {
      */
     do_action('wp_body_open');
     ?>
-    <css-doodle>
-        :doodle {
-        @grid: 1x1;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: -1;
-        width: 100vw;
-        height: 100vh;
-        opacity: 0.4;
-        pointer-events: none;
-        background: #fff;
-        }
 
-        background: radial-gradient(
-        circle at @rand(80%) @rand(100%),
-        rgba(18, 89, 77, @rand(.90, .15)),
-        transparent 70%
-        );
-
-        animation: move 10s ease-in-out infinite alternate;
-
-        @keyframes move {
-        0% { transform: scale(1) translate(1, 0); }
-        100% { transform: scale(1.2) translate(10px, -10px); }
-        }
-    </css-doodle>
-    <div class="logo-background-spot"></div>
 
     <div id="page" class="hfeed site">
         <?php

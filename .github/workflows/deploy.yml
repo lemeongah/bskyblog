@@ -20,15 +20,15 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # set -e
-            # cd /var/www/familyUGC/
+            set -e
+            cd /var/www/bskyblog/
 
-            # echo "🔍 Nettoyage des modifications locales..."
-            # git fetch origin
-            # git reset --hard origin/main
-            # git clean -fd
+            echo "🔍 Nettoyage des modifications locales..."
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
 
-            # echo "🚀 Lancement de Docker..."
-            # cd project/
-            # docker compose down || true
-            # docker compose up -d --build
+            echo "🚀 Lancement de Docker..."
+            cd project/
+            docker compose down || true
+            docker compose up -d --build

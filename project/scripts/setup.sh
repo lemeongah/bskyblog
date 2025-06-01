@@ -1,5 +1,16 @@
 #!/bin/bash
 set -e
+CATEGORIES=(
+  "social-trends|Tendances Social Media"
+  "strategies| Stratégies pour Performer"
+  "tools|Outils & IA"
+)
+
+CATEGORIES=(
+  "parent|Je suis parent"
+  "marque| Je suis une marque"
+)
+
 
 cd "$(dirname "$0")/.."
 
@@ -235,23 +246,18 @@ wpcli menu delete "Menu Principal" 2>/dev/null || true
 wpcli menu create "Menu Principal"
 wpcli menu location assign "Menu Principal" primary
 
-echo "🏷️ Création des catégories, pages et ajout au menu..."
-CATEGORIES=(
-  "ugc-parents|Parents"
-  "ugc-marques|Marques"
-  "ugc-enfants|Enfants"
-)
-echo "📋 (Re)Création du menu principal avec les catégories..."
-wpcli menu delete "Menu Principal" 2>/dev/null || true
-wpcli menu create "Menu Principal"
-wpcli menu location assign "Menu Principal" primary
+# echo "🏷️ Création des catégories, pages et ajout au menu..."
+# CATEGORIES=(
+#   "ugc-parents|Parents"
+#   "ugc-marques|Marques"
+#   "ugc-enfants|Enfants"
+# )
+# echo "📋 (Re)Création du menu principal avec les catégories..."
+# wpcli menu delete "Menu Principal" 2>/dev/null || true
+# wpcli menu create "Menu Principal"
+# wpcli menu location assign "Menu Principal" primary
 
 # Création des catégories et des pages liées
-CATEGORIES=(
-  "social-trends|Tendances Social Media"
-  "strategies| Stratégies pour Performer"
-  "tools|Outils & IA"
-)
 
 for entry in "${CATEGORIES[@]}"; do
   IFS="|" read -r slug label <<< "$entry"

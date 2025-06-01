@@ -195,3 +195,21 @@ body {
 		gap: 1rem;
 	}
 } */
+/* === Tablette (768px à 1024px) === */
+@media (max-width: 1024px) {
+	.site-main {
+		margin-left: 3rem !important;
+		margin-right: 3rem !important;
+	}
+}
+
+/* === Mobile (max 767px) === */
+@media (max-width: 767px) {
+	.site-main {
+		margin-left: 1rem !important;
+		margin-right: 1rem !important;
+	}
+	.site-logo img {
+		max-width: 47vw !important;
+	}
+}

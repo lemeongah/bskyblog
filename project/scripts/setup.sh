@@ -6,10 +6,6 @@ CATEGORIES=(
   "tools|Outils & IA"
 )
 
-CATEGORIES=(
-  "parent|Je suis parent"
-  "marque| Je suis une marque"
-)
 
 
 cd "$(dirname "$0")/.."

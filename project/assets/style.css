@@ -188,13 +188,7 @@ body {
 	margin: 0;
 	line-height: 0.3rem;
 }
-/* Responsive : aligner verticalement en mobile (facultatif) */
-/* @media (max-width: 768px) {
-	.main-nav ul {
-		flex-direction: column;
-		gap: 1rem;
-	}
-} */
+
 /* === Tablette (768px à 1024px) === */
 @media (max-width: 1024px) {
 	.site-main {

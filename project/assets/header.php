@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
     <?php wp_head(); ?>
     <script src="https://unpkg.com/css-doodle@0.15.3/css-doodle.min.js"></script>
 </head>
-
+<script type="text/javascript" src="https://s.skimresources.com/js/292380X1779517.skimlinks.js"></script>
 <body <?php body_class(); ?>>
     <?php
     /**

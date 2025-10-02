@@ -222,6 +222,32 @@ body {
     object-fit: cover;
 }
 
+/* Cible le bloc Derniers articles qui a la classe 'home-hero-grid' */
+.home-hero-grid.wp-block-latest-posts.is-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+.home-hero-grid.wp-block-latest-posts.is-grid li {
+    list-style: none;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    overflow: hidden;
+    padding: 0; /* utile si ton thème en met */
+}
+.home-hero-grid.wp-block-latest-posts.is-grid li:first-child {
+    grid-column: 1 / -1; /* plein écran */
+}
+.home-hero-grid .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+.home-hero-grid.wp-block-latest-posts__post-excerpt,
+.home-hero-grid.wp-block-latest-posts__post-full-content {
+    padding: 0 1rem 1rem;
+}
 
 /* === Tablette (768px à 1024px) === */
 @media (max-width: 1024px) {

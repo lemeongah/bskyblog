@@ -249,6 +249,31 @@ body {
     padding: 0 1rem 1rem;
 }
 
+
+/* Masonry en colonnes — mobile friendly */
+.home-masonry {
+    column-count: 1;
+    column-gap: 1.25rem;
+}
+@media (min-width: 700px) { .home-masonry { column-count: 2; } }
+@media (min-width: 1000px){ .home-masonry { column-count: 3; } }
+
+.home-masonry li {
+    break-inside: avoid;
+    margin: 0 0 1.25rem;
+    list-style: none;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    overflow: hidden;
+}
+.home-masonry .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+
 /* === Tablette (768px à 1024px) === */
 @media (max-width: 1024px) {
     .site-main {

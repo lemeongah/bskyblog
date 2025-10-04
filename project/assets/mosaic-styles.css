@@ -1,0 +1,163 @@
+/*
+ * Styles pour la mosaïque d'articles et les blocs WordPress
+ * Fichier séparé pour une meilleure organisation
+ */
+
+/* === STYLES GÉNÉRAUX POUR LES ARTICLES === */
+.wp-block-latest-posts.is-grid li {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: inherit !important;
+    border-radius: 0.2rem;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.wp-block-latest-posts__post-title {
+    font-size: 2rem;
+    line-height: 2.5rem;
+    color: var(--font-color);
+    text-decoration: none;
+}
+
+.wp-block-latest-posts__post-title:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+/* === SYSTÈME DE LIENS ÉTIRÉS POUR LES CARTES === */
+/* La carte (li) devient le conteneur du lien étiré */
+.wp-block-latest-posts li {
+    position: relative;
+}
+
+/* Lien du titre : on étire un pseudo-élément sur toute la carte */
+.wp-block-latest-posts .wp-block-latest-posts__post-title {
+    position: static;              /* important: pas de position relative ici */
+    display: inline;               /* garde la mise en forme normale du titre */
+    z-index: 2;                    /* au-dessus du fond de la carte */
+}
+
+/* L'overlay qui couvre toute la carte et déclenche le clic du titre */
+.wp-block-latest-posts .wp-block-latest-posts__post-title::after {
+    content: "";
+    position: absolute;
+    inset: 0;                      /* top:0; right:0; bottom:0; left:0 */
+    z-index: 1;                    /* sous les autres liens que l'on rehausse */
+    cursor: pointer;
+}
+
+/* "Lire la suite" reste cliquable et prend le dessus si on clique dessus */
+.wp-block-latest-posts .read-more {
+    position: relative;
+    z-index: 3;                    /* au-dessus de l'overlay étiré */
+}
+
+/* === GRILLE HERO (page d'accueil) === */
+.home-hero-grid.wp-block-latest-posts.is-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.home-hero-grid.wp-block-latest-posts.is-grid li {
+    list-style: none;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    overflow: hidden;
+    padding: 0; /* utile si ton thème en met */
+}
+
+.home-hero-grid.wp-block-latest-posts.is-grid li:first-child {
+    grid-column: 1 / -1; /* plein écran */
+}
+
+.home-hero-grid .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.home-hero-grid.wp-block-latest-posts__post-excerpt,
+.home-hero-grid.wp-block-latest-posts__post-full-content {
+    padding: 0 1rem 1rem;
+}
+
+/* === MOSAÏQUE === */
+/* Grille 3 colonnes responsive */
+.home-mosaic.wp-block-latest-posts.is-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    grid-auto-flow: dense; /* compactage intelligent */
+}
+
+@media (max-width: 1000px) {
+    .home-mosaic.wp-block-latest-posts.is-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .home-mosaic.wp-block-latest-posts.is-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Annuler les largeurs imposées par columns-* */
+.home-mosaic.wp-block-latest-posts[class*="columns-"] li,
+.home-mosaic.wp-block-latest-posts.columns-3 li {
+    width: auto !important;   /* tue le calc(33.333% - …) */
+    flex: initial !important; /* au cas où le core force du flex */
+    margin: 0 !important;     /* évite les gutters du core, on gère avec gap */
+}
+
+/* Style des cartes mosaïque */
+.home-mosaic li {
+    list-style: none;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.home-mosaic li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0,0,0,.1);
+}
+
+/* Images dans la mosaïque */
+.home-mosaic .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Variants de span */
+.home-mosaic li.wide  { grid-column: span 2; }
+.home-mosaic li.tall  { grid-row:    span 2; }
+
+/* Sur mobile on annule les spans */
+@media (max-width: 1000px) {
+    .home-mosaic li.wide { grid-column: span 1; }
+}
+
+/* === RESPONSIVE TABLETTE === */
+@media (max-width: 1024px) {
+    .home-mosaic.wp-block-latest-posts.is-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* === RESPONSIVE MOBILE === */
+@media (max-width: 767px) {
+    .home-mosaic.wp-block-latest-posts.is-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -25,9 +25,13 @@ function theme_enqueue_styles()
         // En production, utiliser des URLs absolues pour éviter les problèmes mixtes HTTP/HTTPS
         $site_url = site_url();
         wp_enqueue_style('custom-style', $site_url . '/wp-content/uploads/custom/css/styles.css', array(), '1.0.3');
+        // Charger les styles de mosaïque séparément
+        wp_enqueue_style('mosaic-style', $site_url . '/wp-content/uploads/custom/mosaic-styles.css', array('custom-style'), '1.0.0');
     } else {
         // En local, utiliser des chemins relatifs standards
         wp_enqueue_style('custom-style', '/wp-content/uploads/custom/css/styles.css', array(), '1.0.3');
+        // Charger les styles de mosaïque séparément
+        wp_enqueue_style('mosaic-style', '/wp-content/uploads/custom/mosaic-styles.css', array('custom-style'), '1.0.0');
     }
 }
 
@@ -212,4 +216,3 @@ add_action('generate_menu_bar_items', function() {
         }
     }
 });
-

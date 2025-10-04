@@ -1,9 +1,14 @@
 /*
- * Styles pour la mosaïque d'articles et les blocs WordPress
+ * =====================================================================
+ * STYLES POUR LA MOSAÏQUE D'ARTICLES ET LES BLOCS WORDPRESS
  * Fichier séparé pour une meilleure organisation
+ * =====================================================================
  */
 
-/* === STYLES GÉNÉRAUX POUR LES ARTICLES === */
+/* =====================================================================
+ * 1. STYLES DE BASE POUR TOUS LES BLOCS WP-BLOCK-LATEST-POSTS
+ * ===================================================================== */
+
 .wp-block-latest-posts.is-grid li {
     display: flex;
     flex-direction: column;
@@ -15,6 +20,7 @@
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     padding: 1rem;
     margin-bottom: 1rem;
+    position: relative; /* Pour le système de liens étirés */
 }
 
 .wp-block-latest-posts__post-title {
@@ -22,6 +28,9 @@
     line-height: 2.5rem;
     color: var(--font-color);
     text-decoration: none;
+    position: static;
+    display: inline;
+    z-index: 2;
 }
 
 .wp-block-latest-posts__post-title:hover {
@@ -29,35 +38,29 @@
     text-decoration: underline;
 }
 
-/* === SYSTÈME DE LIENS ÉTIRÉS POUR LES CARTES === */
-/* La carte (li) devient le conteneur du lien étiré */
-.wp-block-latest-posts li {
-    position: relative;
-}
+/* =====================================================================
+ * 2. SYSTÈME DE LIENS ÉTIRÉS (STRETCHED LINKS)
+ * ===================================================================== */
 
-/* Lien du titre : on étire un pseudo-élément sur toute la carte */
-.wp-block-latest-posts .wp-block-latest-posts__post-title {
-    position: static;              /* important: pas de position relative ici */
-    display: inline;               /* garde la mise en forme normale du titre */
-    z-index: 2;                    /* au-dessus du fond de la carte */
-}
-
-/* L'overlay qui couvre toute la carte et déclenche le clic du titre */
+/* L'overlay invisible qui rend toute la carte cliquable */
 .wp-block-latest-posts .wp-block-latest-posts__post-title::after {
     content: "";
     position: absolute;
-    inset: 0;                      /* top:0; right:0; bottom:0; left:0 */
-    z-index: 1;                    /* sous les autres liens que l'on rehausse */
+    inset: 0; /* Équivaut à top:0; right:0; bottom:0; left:0; */
+    z-index: 1;
     cursor: pointer;
 }
 
-/* "Lire la suite" reste cliquable et prend le dessus si on clique dessus */
+/* Autres liens (comme "Lire la suite") restent cliquables */
 .wp-block-latest-posts .read-more {
     position: relative;
-    z-index: 3;                    /* au-dessus de l'overlay étiré */
+    z-index: 3;
 }
 
-/* === GRILLE HERO (page d'accueil) === */
+/* =====================================================================
+ * 3. GRILLE HERO (PAGE D'ACCUEIL)
+ * ===================================================================== */
+
 .home-hero-grid.wp-block-latest-posts.is-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -70,11 +73,11 @@
     border-radius: 16px;
     box-shadow: 0 6px 20px rgba(0,0,0,.06);
     overflow: hidden;
-    padding: 0; /* utile si ton thème en met */
+    padding: 0;
 }
 
 .home-hero-grid.wp-block-latest-posts.is-grid li:first-child {
-    grid-column: 1 / -1; /* plein écran */
+    grid-column: 1 / -1; /* Premier article prend toute la largeur */
 }
 
 .home-hero-grid .wp-block-latest-posts__featured-image img {
@@ -83,41 +86,32 @@
     display: block;
 }
 
-.home-hero-grid.wp-block-latest-posts__post-excerpt,
-.home-hero-grid.wp-block-latest-posts__post-full-content {
+.home-hero-grid .wp-block-latest-posts__post-excerpt,
+.home-hero-grid .wp-block-latest-posts__post-full-content {
     padding: 0 1rem 1rem;
 }
 
-/* === MOSAÏQUE === */
-/* Grille 3 colonnes responsive */
+/* =====================================================================
+ * 4. MOSAÏQUE PRINCIPALE
+ * ===================================================================== */
+
+/* Configuration de la grille 3 colonnes */
 .home-mosaic.wp-block-latest-posts.is-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem;
-    grid-auto-flow: dense; /* compactage intelligent */
+    grid-auto-flow: dense; /* Compactage intelligent des éléments */
 }
 
-@media (max-width: 1000px) {
-    .home-mosaic.wp-block-latest-posts.is-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 680px) {
-    .home-mosaic.wp-block-latest-posts.is-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Annuler les largeurs imposées par columns-* */
+/* Annulation des styles WordPress par défaut qui interfèrent */
 .home-mosaic.wp-block-latest-posts[class*="columns-"] li,
 .home-mosaic.wp-block-latest-posts.columns-3 li {
-    width: auto !important;   /* tue le calc(33.333% - …) */
-    flex: initial !important; /* au cas où le core force du flex */
-    margin: 0 !important;     /* évite les gutters du core, on gère avec gap */
+    width: auto !important;   /* Supprime les calc(33.333% - …) du core WP */
+    flex: initial !important; /* Évite les conflits avec flexbox */
+    margin: 0 !important;     /* On gère l'espacement avec gap */
 }
 
-/* Style des cartes mosaïque */
+/* Style des cartes de la mosaïque */
 .home-mosaic li {
     list-style: none;
     background: #fff;
@@ -139,25 +133,338 @@
     display: block;
 }
 
-/* Variants de span */
-.home-mosaic li.wide  { grid-column: span 2; }
-.home-mosaic li.tall  { grid-row:    span 2; }
+/* =====================================================================
+ * 5. VARIANTES DE CARTES (WIDE & TALL)
+ * ===================================================================== */
 
-/* Sur mobile on annule les spans */
-@media (max-width: 1000px) {
-    .home-mosaic li.wide { grid-column: span 1; }
+/* Carte large (2 colonnes) */
+.home-mosaic li.wide {
+    grid-column: span 2;
 }
 
-/* === RESPONSIVE TABLETTE === */
+/* Carte haute (2 lignes) */
+.home-mosaic li.tall {
+    grid-row: span 2;
+}
+
+/* =====================================================================
+ * 6. STYLE SPÉCIAL POUR LES CARTES WIDE (HERO-STYLE)
+ * ===================================================================== */
+
+.home-mosaic.wp-block-latest-posts.is-grid li.wide {
+    grid-column: span 2;
+    position: relative;
+    min-height: 380px;
+    padding: 0;
+    background: #000; /* Fallback pendant le chargement de l'image */
+    overflow: hidden;
+}
+
+/* Image en arrière-plan couvrant toute la carte - HAUTE QUALITÉ */
+.home-mosaic li.wide .wp-block-latest-posts__featured-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0; /* En arrière-plan */
+}
+
+.home-mosaic li.wide .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Recadrage intelligent de l'image */
+    display: block;
+    /* Forcer la haute qualité */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: optimize-quality;
+}
+
+/* Masquer l'extrait et "Lire la suite" sur les cartes wide */
+.home-mosaic li.wide .wp-block-latest-posts__post-excerpt,
+.home-mosaic li.wide .read-more {
+    display: none !important;
+}
+
+/* OVERLAY CLIQUABLE SIMPLE - couvre toute la carte */
+.home-mosaic li.wide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 10; /* Au-dessus de tout */
+    cursor: pointer;
+    background: transparent;
+}
+
+/* Gradient pour améliorer la lisibilité du titre */
+.home-mosaic li.wide::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0) 55%);
+    z-index: 1; /* Au-dessus de l'image */
+    pointer-events: none; /* Important : ne doit pas bloquer les clics */
+}
+
+/* Titre positionné en bas à gauche avec fond semi-transparent */
+.home-mosaic li.wide .wp-block-latest-posts__post-title {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    margin: 0;
+    padding: .5rem .75rem;
+    color: #fff !important;
+    background: rgba(0,0,0,.6);
+    border-radius: .5rem;
+    z-index: 11; /* Au-dessus de l'overlay cliquable */
+    text-decoration: none;
+    pointer-events: auto; /* S'assurer que le titre reste cliquable */
+}
+
+.home-mosaic li.wide .wp-block-latest-posts__post-title:hover {
+    text-decoration: underline;
+}
+
+/* Supprimer l'ancien système ::after du titre qui ne marchait pas */
+.home-mosaic li.wide .wp-block-latest-posts__post-title::after {
+    display: none;
+}
+
+
+/* === NORMAL CARD (1 colonne) ================================== */
+.home-mosaic.wp-block-latest-posts.is-grid li:not(.wide):not(.full-width) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* conteneur image */
+.home-mosaic li:not(.wide):not(.full-width) .wp-block-latest-posts__featured-image {
+    width: 100%;
+    height: 220px;                 /* <-- fixe la hauteur (ajuste à ton goût) */
+    overflow: hidden;
+    position: relative;
+}
+
+/* image cover */
+.home-mosaic li:not(.wide):not(.full-width) .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;             /* recadrage élégant */
+    object-position: center;       /* centré */
+    display: block;
+}
+
+/* contenu sous l'image */
+.home-mosaic li:not(.wide):not(.full-width) .wp-block-latest-posts__post-title,
+.home-mosaic li:not(.wide):not(.full-width) .wp-block-latest-posts__post-excerpt {
+    padding: 1rem 1.2rem;
+}
+
+/* =====================================================================
+ * 7. RESPONSIVE DESIGN
+ * ===================================================================== */
+
+/* TABLETTE (max 1024px) */
 @media (max-width: 1024px) {
     .home-mosaic.wp-block-latest-posts.is-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .home-mosaic li.wide {
+        grid-column: span 1; /* Les cartes wide deviennent normales */
+        min-height: 320px;
+    }
+    .home-mosaic li:not(.wide) .wp-block-latest-posts__featured-image {
+        height: 180px;
     }
 }
 
-/* === RESPONSIVE MOBILE === */
+/* MOBILE (max 767px) */
 @media (max-width: 767px) {
     .home-mosaic.wp-block-latest-posts.is-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Une seule colonne */
+    }
+
+    .home-mosaic li.wide {
+        min-height: 240px; /* Hauteur réduite sur mobile */
+    }
+    .home-mosaic li:not(.wide) .wp-block-latest-posts__featured-image {
+        height: 160px;
+    }
+}
+
+/* =====================================================================
+ * 8. GESTION DES EXTRAITS SELON LE CONTEXTE
+ * ===================================================================== */
+
+/* Masquer l'extrait sur les cartes normales seules (patterns 2/1 ou 1/2) */
+.home-mosaic li.single-normal .wp-block-latest-posts__post-excerpt,
+.home-mosaic li.single-normal .read-more {
+    display: none !important;
+}
+
+/* Les cartes normales en groupe de 3 (pattern 1/1/1) gardent leur extrait */
+.home-mosaic li:not(.wide):not(.single-normal) .wp-block-latest-posts__post-excerpt,
+.home-mosaic li:not(.wide):not(.single-normal) .read-more {
+    display: block;
+}
+
+/* Ajustement du padding pour les cartes single-normal */
+.home-mosaic li.single-normal {
+    padding: 1.5rem 1rem; /* Plus d'espace vertical pour compenser l'absence d'extrait */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* =====================================================================
+ * 9. CARTES FULL-WIDTH (HERO HORIZONTAL)
+ * ===================================================================== */
+
+/* Carte pleine largeur (3 colonnes) */
+.home-mosaic li.full-width {
+    grid-column: span 3;
+    display: flex;
+    min-height: 320px;
+    padding: 0;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    margin-bottom: 2rem;
+    align-items: stretch; /* S'assurer que les deux parties ont la même hauteur */
+}
+
+/* Image à gauche (exactement 50% de la largeur) */
+.home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+    flex: 0 0 50%; /* Exactement 50%, ne grandit ni ne rétrécit */
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+    display: block;
+}
+
+.home-mosaic li.full-width .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    /* Forcer la haute qualité */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: optimize-quality;
+}
+
+/* Contenu à droite (exactement 50% de la largeur) */
+.home-mosaic li.full-width .full-width-content {
+    flex: 0 0 50%; /* Exactement 50%, ne grandit ni ne rétrécit */
+    width: 50%;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    background: #fff;
+}
+
+/* Style de la catégorie avec fond coloré */
+.home-mosaic li.full-width .post-category {
+    display: inline-block;
+    background: #e74c3c;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    align-self: flex-start;
+    max-width: fit-content;
+}
+
+/* Titre pour les cartes full-width */
+.home-mosaic li.full-width .wp-block-latest-posts__post-title {
+    font-size: 2.2rem;
+    line-height: 1.3;
+    color: var(--font-color);
+    margin: 0 0 1rem 0;
+    text-align: left;
+    position: static;
+    z-index: 2;
+    font-weight: 700;
+}
+
+.home-mosaic li.full-width .wp-block-latest-posts__post-title:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+/* Extrait pour les cartes full-width */
+.home-mosaic li.full-width .wp-block-latest-posts__post-excerpt {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #666;
+    margin: 0;
+    text-align: left;
+}
+
+/* Meta informations (date, auteur) */
+.home-mosaic li.full-width .post-meta {
+    font-size: 0.9rem;
+    color: #999;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+/* Système de liens étirés pour full-width */
+.home-mosaic li.full-width .wp-block-latest-posts__post-title::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+/* S'assurer que la catégorie reste cliquable */
+.home-mosaic li.full-width .post-category {
+    position: relative;
+    z-index: 3;
+}
+
+/* Responsive pour les cartes full-width */
+@media (max-width: 1024px) {
+    .home-mosaic li.full-width {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+        flex: 0 0 250px;
+        width: 100%;
+    }
+
+    .home-mosaic li.full-width .full-width-content {
+        flex: 1;
+        width: 100%;
+        padding: 1.5rem;
+    }
+
+    .home-mosaic li.full-width .wp-block-latest-posts__post-title {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+        flex: 0 0 200px;
+    }
+
+    .home-mosaic li.full-width .full-width-content {
+        padding: 1rem;
+    }
+
+    .home-mosaic li.full-width .wp-block-latest-posts__post-title {
+        font-size: 1.5rem;
     }
 }

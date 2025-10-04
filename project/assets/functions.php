@@ -26,13 +26,167 @@ function theme_enqueue_styles()
         $site_url = site_url();
         wp_enqueue_style('custom-style', $site_url . '/wp-content/uploads/custom/css/styles.css', array(), '1.0.3');
         // Charger les styles de mosaïque séparément
-        wp_enqueue_style('mosaic-style', $site_url . '/wp-content/uploads/custom/mosaic-styles.css', array('custom-style'), '1.0.0');
+        wp_enqueue_style('mosaic-style', $site_url . '/wp-content/uploads/custom/mosaic-styles.css', array('custom-style'), '1.0.1');
     } else {
         // En local, utiliser des chemins relatifs standards
         wp_enqueue_style('custom-style', '/wp-content/uploads/custom/css/styles.css', array(), '1.0.3');
         // Charger les styles de mosaïque séparément
-        wp_enqueue_style('mosaic-style', '/wp-content/uploads/custom/mosaic-styles.css', array('custom-style'), '1.0.0');
+        wp_enqueue_style('mosaic-style', '/wp-content/uploads/custom/mosaic-styles.css', array('custom-style'), '1.0.1');
     }
+}
+
+// JavaScript pour gérer les clics sur les cartes wide et full-width
+add_action('wp_footer', 'add_mosaic_click_handler');
+function add_mosaic_click_handler() {
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gérer les clics sur les cartes wide
+        const wideCards = document.querySelectorAll('.home-mosaic li.wide');
+
+        wideCards.forEach(function(card) {
+            const titleLink = card.querySelector('.wp-block-latest-posts__post-title');
+
+            if (titleLink && titleLink.href) {
+                // Ajouter un gestionnaire de clic sur toute la carte
+                card.addEventListener('click', function(e) {
+                    // Ne pas déclencher si on clique directement sur le titre
+                    if (e.target === titleLink || titleLink.contains(e.target)) {
+                        return;
+                    }
+
+                    // Sinon, rediriger vers l'URL du titre
+                    window.location.href = titleLink.href;
+                });
+
+                // Ajouter un curseur pointer sur la carte
+                card.style.cursor = 'pointer';
+            }
+        });
+
+        // Fonction pour récupérer la catégorie d'un article via AJAX
+        function getPostCategory(postUrl, callback) {
+            // Extraire l'ID du post depuis l'URL si possible
+            const postId = postUrl.match(/\?p=(\d+)/);
+            if (postId) {
+                // Utiliser l'API REST WordPress pour récupérer les données du post
+                fetch('/wp-json/wp/v2/posts/' + postId[1])
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.categories && data.categories.length > 0) {
+                            // Récupérer le nom de la première catégorie
+                            fetch('/wp-json/wp/v2/categories/' + data.categories[0])
+                                .then(response => response.json())
+                                .then(categoryData => {
+                                    callback(categoryData.name);
+                                })
+                                .catch(() => callback('Article'));
+                        } else {
+                            callback('Article');
+                        }
+                    })
+                    .catch(() => callback('À la une')); // Fallback si l'API échoue
+            } else {
+                // Essayer d'extraire depuis l'URL pretty permalinks
+                const slug = postUrl.split('/').filter(part => part.length > 0).pop();
+                fetch('/wp-json/wp/v2/posts?slug=' + slug)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0 && data[0].categories && data[0].categories.length > 0) {
+                            fetch('/wp-json/wp/v2/categories/' + data[0].categories[0])
+                                .then(response => response.json())
+                                .then(categoryData => {
+                                    callback(categoryData.name);
+                                })
+                                .catch(() => callback('Article'));
+                        } else {
+                            callback('À la une');
+                        }
+                    })
+                    .catch(() => callback('À la une'));
+            }
+        }
+
+        // Gérer les cartes full-width - restructurer complètement le HTML
+        const fullWidthCards = document.querySelectorAll('.home-mosaic li.full-width');
+
+        fullWidthCards.forEach(function(card) {
+            const titleLink = card.querySelector('.wp-block-latest-posts__post-title');
+            const featuredImage = card.querySelector('.wp-block-latest-posts__featured-image');
+            const excerpt = card.querySelector('.wp-block-latest-posts__post-excerpt');
+
+            if (titleLink && featuredImage) {
+                // Sauvegarder les données avant restructuration
+                const titleText = titleLink.textContent;
+                const titleHref = titleLink.href;
+                const excerptText = excerpt ? excerpt.textContent : '';
+
+                // Récupérer la vraie catégorie de l'article
+                getPostCategory(titleHref, function(categoryName) {
+                    // Vider complètement la carte
+                    card.innerHTML = '';
+
+                    // Recréer la structure HTML avec l'image d'abord
+                    const imageContainer = featuredImage.cloneNode(true);
+                    card.appendChild(imageContainer);
+
+                    // Créer le conteneur de contenu
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'full-width-content';
+
+                    // Créer l'élément catégorie avec la vraie catégorie
+                    const categorySpan = document.createElement('span');
+                    categorySpan.className = 'post-category';
+                    categorySpan.textContent = categoryName;
+                    contentDiv.appendChild(categorySpan);
+
+                    // Recréer le titre
+                    const newTitle = document.createElement('a');
+                    newTitle.className = 'wp-block-latest-posts__post-title';
+                    newTitle.href = titleHref;
+                    newTitle.textContent = titleText;
+                    contentDiv.appendChild(newTitle);
+
+                    // Recréer l'extrait si il existe
+                    if (excerptText.trim()) {
+                        const newExcerpt = document.createElement('div');
+                        newExcerpt.className = 'wp-block-latest-posts__post-excerpt';
+                        newExcerpt.textContent = excerptText;
+                        contentDiv.appendChild(newExcerpt);
+                    }
+
+                    // Ajouter le conteneur de contenu à la carte
+                    card.appendChild(contentDiv);
+
+                    // Forcer les styles CSS si nécessaire
+                    card.style.display = 'flex';
+                    card.style.flexDirection = 'row';
+                    imageContainer.style.flex = '0 0 50%';
+                    imageContainer.style.width = '50%';
+                    contentDiv.style.flex = '0 0 50%';
+                    contentDiv.style.width = '50%';
+
+                    // Gestionnaire de clic pour toute la carte
+                    card.addEventListener('click', function(e) {
+                        // Ne pas déclencher si on clique sur des liens spécifiques
+                        if (e.target.tagName === 'A' || e.target.closest('a')) {
+                            return;
+                        }
+
+                        window.location.href = titleHref;
+                    });
+
+                    card.style.cursor = 'pointer';
+
+                    console.log('✅ Carte full-width restructurée:', titleText, 'Catégorie:', categoryName);
+                });
+            }
+        });
+
+        console.log('🎨 Restructuration des cartes full-width terminée');
+    });
+    </script>
+    <?php
 }
 
 // Ajouter le favicon avec la bonne URL selon l'environnement
@@ -216,3 +370,20 @@ add_action('generate_menu_bar_items', function() {
         }
     }
 });
+
+// Forcer l'utilisation d'images haute résolution
+add_filter('wp_get_attachment_image_attributes', 'force_high_quality_images', 10, 3);
+function force_high_quality_images($attr, $attachment, $size) {
+    // Pour les images dans la mosaïque, forcer une taille plus grande
+    if (is_front_page() || is_home()) {
+        // Utiliser 'large' au lieu de 'medium' pour une meilleure qualité
+        if ($size === 'medium' || $size === 'thumbnail') {
+            $image_src = wp_get_attachment_image_src($attachment->ID, 'large');
+            if ($image_src) {
+                $attr['src'] = $image_src[0];
+                $attr['srcset'] = wp_get_attachment_image_srcset($attachment->ID, 'large');
+            }
+        }
+    }
+    return $attr;
+}

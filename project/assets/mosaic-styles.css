@@ -528,8 +528,8 @@
     padding: var(--card-padding) !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: flex-start !important;
-    gap: var(--spacing-sm);
+    justify-content: center !important;
+    gap: var(--spacing-lg);
 }
 
 /* Titre dans les cartes full-width */

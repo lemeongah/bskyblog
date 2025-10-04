@@ -41,6 +41,12 @@ function add_mosaic_click_handler() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Vérifier si on est sur la page d'accueil
+        const isHomePage = document.body.classList.contains('home') ||
+                          document.body.classList.contains('blog') ||
+                          window.location.pathname === '/' ||
+                          window.location.pathname === '/index.php';
+
         // Gérer les clics sur les cartes wide
         const wideCards = document.querySelectorAll('.home-mosaic li.wide');
 
@@ -121,8 +127,70 @@ function add_mosaic_click_handler() {
                 const titleHref = titleLink.href;
                 const excerptText = excerpt ? excerpt.textContent : '';
 
-                // Récupérer la vraie catégorie de l'article
-                getPostCategory(titleHref, function(categoryName) {
+                // Si on est sur la page d'accueil, récupérer et afficher les catégories
+                if (isHomePage) {
+                    // Récupérer la vraie catégorie de l'article
+                    getPostCategory(titleHref, function(categoryName) {
+                        // Vider complètement la carte
+                        card.innerHTML = '';
+
+                        // Recréer la structure HTML avec l'image d'abord
+                        const imageContainer = featuredImage.cloneNode(true);
+                        card.appendChild(imageContainer);
+
+                        // Créer le conteneur de contenu
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'full-width-content';
+
+                        // Créer l'élément catégorie avec la vraie catégorie (utiliser innerHTML pour supporter les entités HTML)
+                        const categorySpan = document.createElement('span');
+                        categorySpan.className = 'post-category';
+                        // Utiliser innerHTML au lieu de textContent pour gérer les entités HTML comme &
+                        categorySpan.innerHTML = categoryName;
+                        contentDiv.appendChild(categorySpan);
+
+                        // Recréer le titre
+                        const newTitle = document.createElement('a');
+                        newTitle.className = 'wp-block-latest-posts__post-title';
+                        newTitle.href = titleHref;
+                        newTitle.textContent = titleText;
+                        contentDiv.appendChild(newTitle);
+
+                        // Recréer l'extrait si il existe
+                        if (excerptText.trim()) {
+                            const newExcerpt = document.createElement('div');
+                            newExcerpt.className = 'wp-block-latest-posts__post-excerpt';
+                            newExcerpt.textContent = excerptText;
+                            contentDiv.appendChild(newExcerpt);
+                        }
+
+                        // Ajouter le conteneur de contenu à la carte
+                        card.appendChild(contentDiv);
+
+                        // Forcer les styles CSS si nécessaire
+                        card.style.display = 'flex';
+                        card.style.flexDirection = 'row';
+                        imageContainer.style.flex = '0 0 50%';
+                        imageContainer.style.width = '50%';
+                        contentDiv.style.flex = '0 0 50%';
+                        contentDiv.style.width = '50%';
+
+                        // Gestionnaire de clic pour toute la carte
+                        card.addEventListener('click', function(e) {
+                            // Ne pas déclencher si on clique sur des liens spécifiques
+                            if (e.target.tagName === 'A' || e.target.closest('a')) {
+                                return;
+                            }
+
+                            window.location.href = titleHref;
+                        });
+
+                        card.style.cursor = 'pointer';
+
+                        console.log('✅ Carte full-width restructurée avec catégorie:', titleText, 'Catégorie:', categoryName);
+                    });
+                } else {
+                    // Si on n'est pas sur la page d'accueil, restructurer sans catégorie
                     // Vider complètement la carte
                     card.innerHTML = '';
 
@@ -134,13 +202,7 @@ function add_mosaic_click_handler() {
                     const contentDiv = document.createElement('div');
                     contentDiv.className = 'full-width-content';
 
-                    // Créer l'élément catégorie avec la vraie catégorie
-                    const categorySpan = document.createElement('span');
-                    categorySpan.className = 'post-category';
-                    categorySpan.textContent = categoryName;
-                    contentDiv.appendChild(categorySpan);
-
-                    // Recréer le titre
+                    // Recréer le titre SANS catégorie
                     const newTitle = document.createElement('a');
                     newTitle.className = 'wp-block-latest-posts__post-title';
                     newTitle.href = titleHref;
@@ -178,12 +240,12 @@ function add_mosaic_click_handler() {
 
                     card.style.cursor = 'pointer';
 
-                    console.log('✅ Carte full-width restructurée:', titleText, 'Catégorie:', categoryName);
-                });
+                    console.log('✅ Carte full-width restructurée sans catégorie:', titleText);
+                }
             }
         });
 
-        console.log('🎨 Restructuration des cartes full-width terminée');
+        console.log('🎨 Restructuration des cartes full-width terminée - Page d\'accueil:', isHomePage);
     });
     </script>
     <?php

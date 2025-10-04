@@ -49,10 +49,8 @@ function add_mosaic_click_handler() {
 
         // Gérer les clics sur les cartes wide
         const wideCards = document.querySelectorAll('.home-mosaic li.wide');
-
         wideCards.forEach(function(card) {
             const titleLink = card.querySelector('.wp-block-latest-posts__post-title');
-
             if (titleLink && titleLink.href) {
                 // Ajouter un gestionnaire de clic sur toute la carte
                 card.addEventListener('click', function(e) {
@@ -60,156 +58,134 @@ function add_mosaic_click_handler() {
                     if (e.target === titleLink || titleLink.contains(e.target)) {
                         return;
                     }
-
-                    // Sinon, rediriger vers l'URL du titre
                     window.location.href = titleLink.href;
                 });
-
-                // Ajouter un curseur pointer sur la carte
                 card.style.cursor = 'pointer';
             }
         });
 
-        // Fonction pour récupérer la catégorie d'un article via AJAX
-        function getPostCategory(postUrl, callback) {
-            // Extraire l'ID du post depuis l'URL si possible
+        // Optimisation : traiter les cartes full-width de manière plus efficace
+        const fullWidthCards = document.querySelectorAll('.home-mosaic li.full-width');
+
+        if (fullWidthCards.length === 0) {
+            console.log('🎨 Aucune carte full-width trouvée');
+            return;
+        }
+
+        // Fonction optimisée pour récupérer la catégorie
+        function getPostCategoryOptimized(postUrl, callback) {
+            // Cache pour éviter les requêtes répétées
+            if (window.categoryCache && window.categoryCache[postUrl]) {
+                callback(window.categoryCache[postUrl]);
+                return;
+            }
+
+            if (!window.categoryCache) {
+                window.categoryCache = {};
+            }
+
+            // Extraire l'ID du post depuis l'URL
             const postId = postUrl.match(/\?p=(\d+)/);
             if (postId) {
-                // Utiliser l'API REST WordPress pour récupérer les données du post
-                fetch('/wp-json/wp/v2/posts/' + postId[1])
+                // Utiliser l'API REST WordPress
+                fetch('/wp-json/wp/v2/posts/' + postId[1] + '?_fields=categories')
                     .then(response => response.json())
                     .then(data => {
                         if (data.categories && data.categories.length > 0) {
-                            // Récupérer le nom de la première catégorie
-                            fetch('/wp-json/wp/v2/categories/' + data.categories[0])
+                            fetch('/wp-json/wp/v2/categories/' + data.categories[0] + '?_fields=name')
                                 .then(response => response.json())
                                 .then(categoryData => {
+                                    window.categoryCache[postUrl] = categoryData.name;
                                     callback(categoryData.name);
                                 })
-                                .catch(() => callback('Article'));
+                                .catch(() => {
+                                    window.categoryCache[postUrl] = 'Article';
+                                    callback('Article');
+                                });
                         } else {
+                            window.categoryCache[postUrl] = 'Article';
                             callback('Article');
                         }
                     })
-                    .catch(() => callback('À la une')); // Fallback si l'API échoue
+                    .catch(() => {
+                        window.categoryCache[postUrl] = 'À la une';
+                        callback('À la une');
+                    });
             } else {
-                // Essayer d'extraire depuis l'URL pretty permalinks
+                // Essayer avec pretty permalinks
                 const slug = postUrl.split('/').filter(part => part.length > 0).pop();
-                fetch('/wp-json/wp/v2/posts?slug=' + slug)
+                fetch('/wp-json/wp/v2/posts?slug=' + slug + '&_fields=categories')
                     .then(response => response.json())
                     .then(data => {
                         if (data.length > 0 && data[0].categories && data[0].categories.length > 0) {
-                            fetch('/wp-json/wp/v2/categories/' + data[0].categories[0])
+                            fetch('/wp-json/wp/v2/categories/' + data[0].categories[0] + '?_fields=name')
                                 .then(response => response.json())
                                 .then(categoryData => {
+                                    window.categoryCache[postUrl] = categoryData.name;
                                     callback(categoryData.name);
                                 })
-                                .catch(() => callback('Article'));
+                                .catch(() => {
+                                    window.categoryCache[postUrl] = 'Article';
+                                    callback('Article');
+                                });
                         } else {
+                            window.categoryCache[postUrl] = 'À la une';
                             callback('À la une');
                         }
                     })
-                    .catch(() => callback('À la une'));
+                    .catch(() => {
+                        window.categoryCache[postUrl] = 'À la une';
+                        callback('À la une');
+                    });
             }
         }
 
-        // Gérer les cartes full-width - restructurer complètement le HTML
-        const fullWidthCards = document.querySelectorAll('.home-mosaic li.full-width');
-
-        fullWidthCards.forEach(function(card) {
+        // Traitement optimisé des cartes full-width
+        fullWidthCards.forEach(function(card, index) {
             const titleLink = card.querySelector('.wp-block-latest-posts__post-title');
             const featuredImage = card.querySelector('.wp-block-latest-posts__featured-image');
             const excerpt = card.querySelector('.wp-block-latest-posts__post-excerpt');
 
-            if (titleLink && featuredImage) {
-                // Sauvegarder les données avant restructuration
-                const titleText = titleLink.textContent;
-                const titleHref = titleLink.href;
-                const excerptText = excerpt ? excerpt.textContent : '';
+            if (!titleLink || !featuredImage) {
+                console.warn('⚠️ Carte full-width incomplète détectée, ignorée');
+                return;
+            }
 
-                // Si on est sur la page d'accueil, récupérer et afficher les catégories
-                if (isHomePage) {
-                    // Récupérer la vraie catégorie de l'article
-                    getPostCategory(titleHref, function(categoryName) {
-                        // Vider complètement la carte
-                        card.innerHTML = '';
+            // Ajouter une classe pour indiquer que la restructuration commence
+            card.classList.add('restructuring');
 
-                        // Recréer la structure HTML avec l'image d'abord
-                        const imageContainer = featuredImage.cloneNode(true);
-                        card.appendChild(imageContainer);
+            // Sauvegarder les données avant restructuration
+            const titleText = titleLink.textContent;
+            const titleHref = titleLink.href;
+            const excerptText = excerpt ? excerpt.textContent : '';
 
-                        // Créer le conteneur de contenu
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'full-width-content';
-
-                        // Créer l'élément catégorie avec la vraie catégorie (utiliser innerHTML pour supporter les entités HTML)
-                        const categorySpan = document.createElement('span');
-                        categorySpan.className = 'post-category';
-                        // Utiliser innerHTML au lieu de textContent pour gérer les entités HTML comme &
-                        categorySpan.innerHTML = categoryName;
-                        contentDiv.appendChild(categorySpan);
-
-                        // Recréer le titre
-                        const newTitle = document.createElement('a');
-                        newTitle.className = 'wp-block-latest-posts__post-title';
-                        newTitle.href = titleHref;
-                        newTitle.textContent = titleText;
-                        contentDiv.appendChild(newTitle);
-
-                        // Recréer l'extrait si il existe
-                        if (excerptText.trim()) {
-                            const newExcerpt = document.createElement('div');
-                            newExcerpt.className = 'wp-block-latest-posts__post-excerpt';
-                            newExcerpt.textContent = excerptText;
-                            contentDiv.appendChild(newExcerpt);
-                        }
-
-                        // Ajouter le conteneur de contenu à la carte
-                        card.appendChild(contentDiv);
-
-                        // Forcer les styles CSS si nécessaire
-                        card.style.display = 'flex';
-                        card.style.flexDirection = 'row';
-                        imageContainer.style.flex = '0 0 50%';
-                        imageContainer.style.width = '50%';
-                        contentDiv.style.flex = '0 0 50%';
-                        contentDiv.style.width = '50%';
-
-                        // Gestionnaire de clic pour toute la carte
-                        card.addEventListener('click', function(e) {
-                            // Ne pas déclencher si on clique sur des liens spécifiques
-                            if (e.target.tagName === 'A' || e.target.closest('a')) {
-                                return;
-                            }
-
-                            window.location.href = titleHref;
-                        });
-
-                        card.style.cursor = 'pointer';
-
-                        console.log('✅ Carte full-width restructurée avec catégorie:', titleText, 'Catégorie:', categoryName);
-                    });
-                } else {
-                    // Si on n'est pas sur la page d'accueil, restructurer sans catégorie
-                    // Vider complètement la carte
-                    card.innerHTML = '';
-
-                    // Recréer la structure HTML avec l'image d'abord
+            // Fonction pour finaliser la restructuration
+            function finalizeRestructuring(categoryName) {
+                // Utiliser requestAnimationFrame pour optimiser les performances
+                requestAnimationFrame(() => {
+                    // Vider et reconstruire plus efficacement
                     const imageContainer = featuredImage.cloneNode(true);
-                    card.appendChild(imageContainer);
 
                     // Créer le conteneur de contenu
                     const contentDiv = document.createElement('div');
                     contentDiv.className = 'full-width-content';
 
-                    // Recréer le titre SANS catégorie
+                    // Si on est sur la page d'accueil, ajouter la catégorie
+                    if (isHomePage && categoryName) {
+                        const categorySpan = document.createElement('span');
+                        categorySpan.className = 'post-category';
+                        categorySpan.innerHTML = categoryName; // Utiliser innerHTML pour les entités HTML
+                        contentDiv.appendChild(categorySpan);
+                    }
+
+                    // Créer le nouveau titre
                     const newTitle = document.createElement('a');
                     newTitle.className = 'wp-block-latest-posts__post-title';
                     newTitle.href = titleHref;
                     newTitle.textContent = titleText;
                     contentDiv.appendChild(newTitle);
 
-                    // Recréer l'extrait si il existe
+                    // Ajouter l'extrait si il existe
                     if (excerptText.trim()) {
                         const newExcerpt = document.createElement('div');
                         newExcerpt.className = 'wp-block-latest-posts__post-excerpt';
@@ -217,35 +193,39 @@ function add_mosaic_click_handler() {
                         contentDiv.appendChild(newExcerpt);
                     }
 
-                    // Ajouter le conteneur de contenu à la carte
+                    // Reconstruction complète
+                    card.innerHTML = '';
+                    card.appendChild(imageContainer);
                     card.appendChild(contentDiv);
 
-                    // Forcer les styles CSS si nécessaire
-                    card.style.display = 'flex';
-                    card.style.flexDirection = 'row';
-                    imageContainer.style.flex = '0 0 50%';
-                    imageContainer.style.width = '50%';
-                    contentDiv.style.flex = '0 0 50%';
-                    contentDiv.style.width = '50%';
-
-                    // Gestionnaire de clic pour toute la carte
+                    // Gestionnaire de clic optimisé
                     card.addEventListener('click', function(e) {
-                        // Ne pas déclencher si on clique sur des liens spécifiques
                         if (e.target.tagName === 'A' || e.target.closest('a')) {
                             return;
                         }
-
                         window.location.href = titleHref;
                     });
 
                     card.style.cursor = 'pointer';
 
-                    console.log('✅ Carte full-width restructurée sans catégorie:', titleText);
-                }
+                    // Finaliser l'animation
+                    card.classList.remove('restructuring');
+                    card.classList.add('restructured');
+
+                    console.log('✅ Carte full-width optimisée:', titleText, isHomePage ? 'avec catégorie: ' + categoryName : 'sans catégorie');
+                });
+            }
+
+            // Si on est sur la page d'accueil, récupérer la catégorie
+            if (isHomePage) {
+                getPostCategoryOptimized(titleHref, finalizeRestructuring);
+            } else {
+                // Sinon, finaliser directement sans catégorie
+                finalizeRestructuring(null);
             }
         });
 
-        console.log('🎨 Restructuration des cartes full-width terminée - Page d\'accueil:', isHomePage);
+        console.log('🎨 Restructuration optimisée des', fullWidthCards.length, 'cartes full-width - Page d\'accueil:', isHomePage);
     });
     </script>
     <?php

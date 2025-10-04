@@ -468,3 +468,177 @@
         font-size: 1.5rem;
     }
 }
+
+/*
+ * =====================================================================
+ * STYLES POUR LA MOSAÏQUE D'ARTICLES - OPTIMISÉ POUR PERFORMANCE
+ * Fichier séparé pour une meilleure organisation
+ * =====================================================================
+ */
+
+/* =====================================================================
+ * 1. STYLES PRÉVENTIFS POUR ÉVITER LE DÉLAI D'AFFICHAGE
+ * Appliqués immédiatement, avant le JavaScript
+ * ===================================================================== */
+
+/* Style de base pour toutes les cartes de la mosaïque */
+.home-mosaic li {
+    transition: var(--card-transition);
+    cursor: pointer;
+    background-color: var(--card-bg);
+    border-radius: var(--card-border-radius);
+    overflow: hidden;
+}
+
+/* Styles préventifs pour les cartes full-width */
+.home-mosaic li.full-width {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch;
+    min-height: 200px;
+    background-color: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+    border-radius: var(--card-border-radius);
+    transition: var(--card-transition);
+}
+
+/* Image dans les cartes full-width - style préventif */
+.home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    height: auto !important;
+    display: flex !important;
+    align-items: center;
+    overflow: hidden;
+}
+
+.home-mosaic li.full-width .wp-block-latest-posts__featured-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 0 !important;
+}
+
+/* Contenu dans les cartes full-width - style préventif */
+.home-mosaic li.full-width > div:not(.wp-block-latest-posts__featured-image),
+.home-mosaic li.full-width .full-width-content {
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    padding: var(--card-padding) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: var(--spacing-sm);
+}
+
+/* Titre dans les cartes full-width */
+.home-mosaic li.full-width .wp-block-latest-posts__post-title {
+    font-size: var(--font-size-h3) !important;
+    line-height: var(--line-height-heading) !important;
+    color: var(--card-title-color) !important;
+    text-decoration: none !important;
+    margin: 0 !important;
+    font-weight: var(--font-weight-bold) !important;
+}
+
+/* Extrait dans les cartes full-width */
+.home-mosaic li.full-width .wp-block-latest-posts__post-excerpt {
+    color: var(--card-text-color) !important;
+    font-size: var(--font-size-base) !important;
+    line-height: var(--line-height-base) !important;
+    margin: 0 !important;
+}
+
+/* Catégorie dans les cartes full-width */
+.home-mosaic li.full-width .post-category {
+    background-color: var(--category-bg) !important;
+    color: var(--category-text) !important;
+    padding: var(--spacing-xs) var(--spacing-sm) !important;
+    border-radius: var(--border-radius-sm) !important;
+    font-size: var(--font-size-small) !important;
+    font-weight: var(--font-weight-medium) !important;
+    display: inline-block !important;
+    margin-bottom: var(--spacing-sm) !important;
+    align-self: flex-start !important;
+}
+
+/* =====================================================================
+ * 2. STYLES POUR LES CARTES WIDE
+ * ===================================================================== */
+
+.home-mosaic li.wide {
+    background-color: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    cursor: pointer;
+    transition: var(--card-transition);
+}
+
+.home-mosaic li.wide:hover {
+    transform: var(--card-hover-transform);
+    box-shadow: var(--card-hover-shadow);
+    background-color: var(--card-hover-bg);
+}
+
+/* =====================================================================
+ * 3. OPTIMISATIONS POUR ÉVITER LE FLASH DE CONTENU NON STYLÉ (FOUC)
+ * ===================================================================== */
+
+/* Cache temporairement les cartes full-width pendant la restructuration */
+.home-mosaic li.full-width.restructuring {
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.home-mosaic li.full-width.restructured {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+/* Style pour le contenu en cours de restructuration */
+.home-mosaic li.full-width:not(.restructured) {
+    /* Forcer l'affichage en ligne dès le début */
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+/* =====================================================================
+ * 4. RESPONSIVE DESIGN
+ * ===================================================================== */
+
+@media (max-width: 768px) {
+    /* Sur mobile, les cartes full-width deviennent verticales */
+    .home-mosaic li.full-width {
+        flex-direction: column !important;
+    }
+
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image,
+    .home-mosaic li.full-width .full-width-content {
+        flex: none !important;
+        width: 100% !important;
+    }
+
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+        height: 200px !important;
+    }
+}
+
+/* =====================================================================
+ * 5. ANIMATIONS ET TRANSITIONS OPTIMISÉES
+ * ===================================================================== */
+
+/* Accélération matérielle pour les transitions */
+.home-mosaic li {
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* Hover effects optimisés */
+.home-mosaic li:hover {
+    transform: var(--card-hover-transform);
+    box-shadow: var(--card-hover-shadow);
+}

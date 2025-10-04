@@ -248,6 +248,32 @@ body {
 .home-hero-grid.wp-block-latest-posts__post-full-content {
     padding: 0 1rem 1rem;
 }
+/* 1) La carte (li) devient le conteneur du lien étiré */
+.wp-block-latest-posts li {
+    position: relative;
+}
+
+/* 2) Lien du titre : on étire un pseudo-élément sur toute la carte */
+.wp-block-latest-posts .wp-block-latest-posts__post-title {
+    position: static;              /* important: pas de position relative ici */
+    display: inline;               /* garde la mise en forme normale du titre */
+    z-index: 2;                    /* au-dessus du fond de la carte */
+}
+
+/* L’overlay qui couvre toute la carte et déclenche le clic du titre */
+.wp-block-latest-posts .wp-block-latest-posts__post-title::after {
+    content: "";
+    position: absolute;
+    inset: 0;                      /* top:0; right:0; bottom:0; left:0 */
+    z-index: 1;                    /* sous les autres liens que l’on rehausse */
+    cursor: pointer;
+}
+
+/* 3) "Lire la suite" reste cliquable et prend le dessus si on clique dessus */
+.wp-block-latest-posts .read-more {
+    position: relative;
+    z-index: 3;                    /* au-dessus de l’overlay étiré */
+}
 
 
 /*MOSAIQUE */

@@ -16,3 +16,10 @@ rendre exécutable le script
 
 `` chmod +x scripts/backup_db.sh
 chmod +x scripts/restore_db.sh ``
+
+
+
+
+pour importer depuis la prod la base de donnée directement 
+/scripts
+./bdprod.sh

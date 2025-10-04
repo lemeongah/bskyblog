@@ -20,6 +20,22 @@ if (!defined('ABSPATH')) {
     <script src="https://unpkg.com/css-doodle@0.15.3/css-doodle.min.js"></script>
 </head>
 <script type="text/javascript" src="https://s.skimresources.com/js/292380X1779517.skimlinks.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.home-mosaic.wp-block-latest-posts.is-grid').forEach(ul => {
+    const items = Array.from(ul.children);
+    // ~30% des cartes deviennent "wide", sans casser l’ordre
+    items.forEach((li, i) => {
+      if (window.innerWidth > 1000 && Math.random() < 0.30) li.classList.add('wide');
+      // si tu veux parfois des "tall"
+      // if (Math.random() < 0.10) li.classList.add('tall');
+    });
+  });
+});
+</script>
+
+
 <body <?php body_class(); ?>>
     <?php
     /**

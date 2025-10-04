@@ -250,28 +250,49 @@ body {
 }
 
 
-/* Masonry en colonnes — mobile friendly */
-.home-masonry {
-    column-count: 1;
-    column-gap: 1.25rem;
+/*MOSAIQUE */
+/* Grille 3 colonnes responsive */
+.home-mosaic.wp-block-latest-posts.is-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    grid-auto-flow: dense; /* compactage intelligent */
 }
-@media (min-width: 700px) { .home-masonry { column-count: 2; } }
-@media (min-width: 1000px){ .home-masonry { column-count: 3; } }
+@media (max-width: 1000px) {
+    .home-mosaic.wp-block-latest-posts.is-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 680px) {
+    .home-mosaic.wp-block-latest-posts.is-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
-.home-masonry li {
-    break-inside: avoid;
-    margin: 0 0 1.25rem;
+/* Carte */
+.home-mosaic li {
     list-style: none;
     background: #fff;
     border-radius: 16px;
-    box-shadow: 0 6px 20px rgba(0,0,0,.06);
     overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    transition: transform .2s ease, box-shadow .2s ease;
 }
-.home-masonry .wp-block-latest-posts__featured-image img {
-    width: 100%;
-    height: auto;
-    display: block;
+.home-mosaic li:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.1); }
+
+/* Media full */
+.home-mosaic .wp-block-latest-posts__featured-image img {
+    width: 100%; height: auto; display: block;
 }
+
+/* Variants de span */
+.home-mosaic li.wide  { grid-column: span 2; }
+.home-mosaic li.tall  { grid-row:    span 2; }
+/* Sur mobile on annule les spans */
+@media (max-width: 1000px) {
+    .home-mosaic li.wide { grid-column: span 1; }
+}
+
 
 
 /* === Tablette (768px à 1024px) === */

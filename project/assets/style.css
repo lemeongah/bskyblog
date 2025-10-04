@@ -311,13 +311,8 @@ body {
 /* 3) Cartes “wide” (span 2 colonnes) si tu en mets à la main */
 .home-mosaic.wp-block-latest-posts.is-grid li.wide { grid-column: span 2; }
 
-/* Responsive */
-@media (max-width: 1000px) {
-    .home-mosaic.wp-block-latest-posts.is-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 680px) {
-    .home-mosaic.wp-block-latest-posts.is-grid { grid-template-columns: 1fr; }
-}
+
+
 
 /* (optionnel) style cartes */
 .home-mosaic li {
@@ -335,6 +330,8 @@ body {
 
 /* === Tablette (768px à 1024px) === */
 @media (max-width: 1024px) {
+    .home-mosaic.wp-block-latest-posts.is-grid { grid-template-columns: repeat(2, 1fr); }
+
     .site-main {
         margin-left: 3rem !important;
         margin-right: 3rem !important;
@@ -347,6 +344,8 @@ body {
 
 /* === Mobile (max 767px) === */
 @media (max-width: 767px) {
+    .home-mosaic.wp-block-latest-posts.is-grid { grid-template-columns: 1fr; }
+
     .site-main {
         margin-left: 1rem !important;
         margin-right: 1rem !important;

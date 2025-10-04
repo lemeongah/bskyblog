@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 <script type="text/javascript" src="https://s.skimresources.com/js/292380X1779517.skimlinks.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+/* document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.home-mosaic.wp-block-latest-posts.is-grid').forEach(ul => {
     const items = Array.from(ul.children);
     // ~30% des cartes deviennent "wide", sans casser l’ordre
@@ -31,6 +31,13 @@ document.addEventListener('DOMContentLoaded', function () {
       // si tu veux parfois des "tall"
       // if (Math.random() < 0.10) li.classList.add('tall');
     });
+  });
+}); */
+document.addEventListener('DOMContentLoaded', function () {
+  const ul = document.querySelector('.home-mosaic.wp-block-latest-posts.is-grid');
+  if (!ul) return;
+  [...ul.children].forEach(li => {
+    if (window.innerWidth > 1000 && Math.random() < 0.30) li.classList.add('wide'); // ~30% en 2 colonnes
   });
 });
 </script>

@@ -292,6 +292,44 @@ body {
 @media (max-width: 1000px) {
     .home-mosaic li.wide { grid-column: span 1; }
 }
+/* 1) Basculer le conteneur en CSS Grid */
+.home-mosaic.wp-block-latest-posts.is-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    grid-auto-flow: dense;
+}
+
+/* 2) Annuler les largeurs imposées par columns-* */
+.home-mosaic.wp-block-latest-posts[class*="columns-"] li,
+.home-mosaic.wp-block-latest-posts.columns-3 li {
+    width: auto !important;   /* tue le calc(33.333% - …) */
+    flex: initial !important; /* au cas où le core force du flex */
+    margin: 0 !important;     /* évite les gutters du core, on gère avec gap */
+}
+
+/* 3) Cartes “wide” (span 2 colonnes) si tu en mets à la main */
+.home-mosaic.wp-block-latest-posts.is-grid li.wide { grid-column: span 2; }
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .home-mosaic.wp-block-latest-posts.is-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 680px) {
+    .home-mosaic.wp-block-latest-posts.is-grid { grid-template-columns: 1fr; }
+}
+
+/* (optionnel) style cartes */
+.home-mosaic li {
+    list-style: none;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    transition: transform .2s, box-shadow .2s;
+}
+.home-mosaic li:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.1); }
+.home-mosaic .wp-block-latest-posts__featured-image img { width: 100%; height: auto; display: block; }
 
 
 

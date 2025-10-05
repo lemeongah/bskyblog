@@ -624,6 +624,12 @@
     .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
         height: 200px !important;
     }
+    .wp-block-latest-posts {
+        margin-left:0;
+    }
+    .home-mosaic li.full-width > div:not(.wp-block-latest-posts__featured-image), .home-mosaic li.full-width .full-width-content {
+        width: 100%!important;
+    }
 }
 
 /* =====================================================================

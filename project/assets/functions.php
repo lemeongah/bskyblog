@@ -166,41 +166,38 @@ function add_mosaic_click_handler() {
                 return;
             }
 
-            // Ajouter une classe pour indiquer que la restructuration commence
             card.classList.add('restructuring');
 
-            // Sauvegarder les données avant restructuration
             const titleText = titleLink.textContent;
             const titleHref = titleLink.href;
             const excerptText = excerpt ? excerpt.textContent : '';
 
-            // Fonction pour finaliser la restructuration
             function finalizeRestructuring(categoryName) {
-                // Utiliser requestAnimationFrame pour optimiser les performances
                 requestAnimationFrame(() => {
-                    // Vider et reconstruire plus efficacement
+                    // Cloner l'image
                     const imageContainer = featuredImage.cloneNode(true);
 
-                    // Créer le conteneur de contenu
+                    // Créer le conteneur de contenu (colonne de droite)
                     const contentDiv = document.createElement('div');
                     contentDiv.className = 'full-width-content';
 
-                    // Si on est sur la page d'accueil, ajouter la catégorie
-                    if (isHomePage && categoryName) {
-                        const categorySpan = document.createElement('span');
-                        categorySpan.className = 'post-category';
-                        categorySpan.innerHTML = categoryName; // Utiliser innerHTML pour les entités HTML
-                        contentDiv.appendChild(categorySpan);
+                    // Ajouter la catégorie en tag (ordre 1)
+                    if (categoryName) {
+                        const categoryTag = document.createElement('a');
+                        categoryTag.className = 'post-category';
+                        categoryTag.textContent = categoryName;
+                        categoryTag.href = '#';
+                        contentDiv.appendChild(categoryTag);
                     }
 
-                    // Créer le nouveau titre
+                    // Titre (ordre 2) - AU-DESSUS de l'excerpt dans le même conteneur
                     const newTitle = document.createElement('a');
                     newTitle.className = 'wp-block-latest-posts__post-title';
                     newTitle.href = titleHref;
                     newTitle.textContent = titleText;
                     contentDiv.appendChild(newTitle);
 
-                    // Ajouter l'extrait si il existe
+                    // Extrait (ordre 3) - EN-DESSOUS du titre dans le même conteneur
                     if (excerptText.trim()) {
                         const newExcerpt = document.createElement('div');
                         newExcerpt.className = 'wp-block-latest-posts__post-excerpt';
@@ -208,12 +205,14 @@ function add_mosaic_click_handler() {
                         contentDiv.appendChild(newExcerpt);
                     }
 
-                    // Reconstruction complète
+                    // IMPORTANT: Reconstruction en 2 colonnes seulement
+                    // 1. Image (50% gauche)
+                    // 2. Tout le contenu (50% droite)
                     card.innerHTML = '';
                     card.appendChild(imageContainer);
                     card.appendChild(contentDiv);
 
-                    // Gestionnaire de clic optimisé
+                    // Gestionnaire de clic
                     card.addEventListener('click', function(e) {
                         if (e.target.tagName === 'A' || e.target.closest('a')) {
                             return;
@@ -222,25 +221,31 @@ function add_mosaic_click_handler() {
                     });
 
                     card.style.cursor = 'pointer';
-
-                    // Finaliser l'animation
                     card.classList.remove('restructuring');
                     card.classList.add('restructured');
-
-                    console.log('✅ Carte full-width optimisée:', titleText, isHomePage ? 'avec catégorie: ' + categoryName : 'sans catégorie');
                 });
             }
 
-            // Si on est sur la page d'accueil, récupérer la catégorie
-            if (isHomePage) {
-                getPostCategoryOptimized(titleHref, finalizeRestructuring);
-            } else {
-                // Sinon, finaliser directement sans catégorie
-                finalizeRestructuring(null);
+            // Récupérer la catégorie et restructurer
+            getPostCategoryOptimized(titleHref, finalizeRestructuring);
+        });
+
+        // === Patch simple: créer le conteneur .full-width-content si absent ===
+        document.querySelectorAll('.home-mosaic li.full-width').forEach(function(card){
+            if (!card.querySelector('.full-width-content')) {
+                const title = card.querySelector(':scope > .wp-block-latest-posts__post-title');
+                const excerpt = card.querySelector(':scope > .wp-block-latest-posts__post-excerpt');
+                if (title) {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'full-width-content';
+                    card.appendChild(wrap);
+                    wrap.appendChild(title);
+                    if (excerpt) wrap.appendChild(excerpt);
+                }
             }
         });
 
-        console.log('🎨 Restructuration optimisée des', fullWidthCards.length, 'cartes full-width - Page d\'accueil:', isHomePage);
+        console.log('🎨 Restructuration optimisée des', fullWidthCards.length, 'cartes full-width');
     });
     </script>
     <?php

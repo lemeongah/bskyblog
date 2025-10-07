@@ -25,85 +25,75 @@ if (!defined('ABSPATH')) {
 document.addEventListener('DOMContentLoaded', function () {
   const ul = document.querySelector('.home-mosaic.wp-block-latest-posts.is-grid');
   if (!ul || window.innerWidth <= 1000) return;
-
   const items = Array.from(ul.children);
   if (items.length === 0) return;
 
-  // Définir les patterns de lignes possibles
   const patterns = [
-    [3],        // full-width (toute la largeur)
-    [2, 1],     // wide + normal
-    [1, 1, 1],  // 3 normales
-    [1, 2],     // normal + wide
-    [1, 1, 1],  // 3 normales (répété pour plus de variété)
+    [3],[2,1],[1,1,1],[1,2],[1,1,1],
   ];
-
   let currentIndex = 0;
   let previousPattern = -1;
 
-  // TOUJOURS commencer par une carte full-width
   if (items.length > 0) {
     const firstItem = items[0];
-    firstItem.classList.remove('wide', 'tall', 'single-normal');
+    firstItem.classList.remove('wide','tall','single-normal');
     firstItem.classList.add('full-width');
     currentIndex = 1;
   }
 
-  // Fonction pour choisir le prochain pattern (différent du précédent)
   function getNextPattern() {
     let nextPattern;
     do {
-      // Exclure le pattern [3] après le premier élément pour éviter trop de full-width
-      const availablePatterns = patterns.slice(1); // Enlever [3] du choix
-      nextPattern = Math.floor(Math.random() * availablePatterns.length) + 1; // +1 car on a retiré le premier
+      const available = patterns.slice(1);
+      nextPattern = Math.floor(Math.random() * available.length) + 1;
     } while (nextPattern === previousPattern && patterns.length > 2);
-
     previousPattern = nextPattern;
     return patterns[nextPattern];
   }
 
-  // Appliquer les patterns ligne par ligne pour le reste
   while (currentIndex < items.length) {
     const currentPattern = getNextPattern();
-    let itemsInCurrentRow = 0;
-    const currentRowItems = []; // Garder trace des items de la ligne courante
-
-    // Appliquer le pattern à la ligne courante
+    let used = 0;
+    const rowItems = [];
     for (let i = 0; i < currentPattern.length && currentIndex < items.length; i++) {
       const item = items[currentIndex];
-      const cellSize = currentPattern[i];
-
-      // Nettoyer les classes existantes
-      item.classList.remove('wide', 'tall', 'single-normal', 'full-width');
-
-      // Appliquer la bonne classe selon la taille
-      if (cellSize === 3) {
-        item.classList.add('full-width');
-        itemsInCurrentRow += 3;
-      } else if (cellSize === 2) {
-        item.classList.add('wide');
-        itemsInCurrentRow += 2;
-      } else {
-        // cellSize === 1, carte normale
-        itemsInCurrentRow += 1;
-      }
-
-      currentRowItems.push({ item, cellSize });
+      const size = currentPattern[i];
+      item.classList.remove('wide','tall','single-normal','full-width');
+      if (size === 3) { item.classList.add('full-width'); used += 3; }
+      else if (size === 2) { item.classList.add('wide'); used += 2; }
+      else { used += 1; }
+      rowItems.push({item,size});
       currentIndex++;
-
-      // Si on a rempli 3 colonnes, passer à la ligne suivante
-      if (itemsInCurrentRow >= 3) break;
+      if (used >= 3) break;
     }
-
-    // Identifier les cartes normales seules (patterns 2/1 ou 1/2)
-    const normalCards = currentRowItems.filter(({ cellSize }) => cellSize === 1);
-    if (normalCards.length === 1) {
-      // Il n'y a qu'une seule carte normale dans cette ligne
-      normalCards[0].item.classList.add('single-normal');
-    }
+    const normalCards = rowItems.filter(r => r.size === 1);
+    if (normalCards.length === 1) normalCards[0].item.classList.add('single-normal');
   }
 
-  console.log('🎨 Mosaïque organisée avec patterns alternés, cartes full-width et gestion des extraits');
+  // --- PATCH FULL-WIDTH : regrouper titre + excerpt dans .full-width-content ---
+  document.querySelectorAll('.home-mosaic li.full-width').forEach(card => {
+    const hasWrapper = card.querySelector(':scope > .full-width-content');
+    if (!hasWrapper) {
+      const title = card.querySelector(':scope > .wp-block-latest-posts__post-title');
+      const excerpt = card.querySelector(':scope > .wp-block-latest-posts__post-excerpt');
+      if (title) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'full-width-content';
+        // Insérer le wrapper après l'image si elle existe
+        const imgBlock = card.querySelector(':scope > .wp-block-latest-posts__featured-image');
+        if (imgBlock && imgBlock.nextSibling) {
+          card.insertBefore(wrapper, imgBlock.nextSibling);
+        } else {
+          card.appendChild(wrapper);
+        }
+        wrapper.appendChild(title);
+        if (excerpt) wrapper.appendChild(excerpt);
+      }
+    }
+  });
+  // ---------------------------------------------------------------------------
+
+  console.log('Mosaic ok + regroupement full-width');
 });
 </script>
 

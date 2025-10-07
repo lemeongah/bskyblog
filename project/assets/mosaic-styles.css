@@ -320,23 +320,25 @@
  * 9. CARTES FULL-WIDTH (HERO HORIZONTAL)
  * ===================================================================== */
 
-/* Carte pleine largeur (3 colonnes) */
+/* Carte pleine largeur (3 colonnes = toute la largeur de la mosaïque) */
 .home-mosaic li.full-width {
     grid-column: span 3;
-    display: flex;
+    display: flex !important;
+    flex-direction: row !important; /* FORCER 2 COLONNES HORIZONTALES */
     min-height: 320px;
     padding: 0;
     background: #fff;
     overflow: hidden;
     box-shadow: 0 6px 20px rgba(0,0,0,.06);
     margin-bottom: 2rem;
-    align-items: stretch; /* S'assurer que les deux parties ont la même hauteur */
+    align-items: stretch;
+    border-radius: 16px;
 }
 
-/* Image à gauche (exactement 50% de la largeur) */
+/* Image à gauche (exactement 50% - COLONNE 1) */
 .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
-    flex: 0 0 50%; /* Exactement 50%, ne grandit ni ne rétrécit */
-    width: 50%;
+    flex: 0 0 50% !important;
+    width: 50% !important;
     position: relative;
     overflow: hidden;
     display: block;
@@ -348,26 +350,22 @@
     object-fit: cover;
     object-position: center;
     display: block;
-    /* Forcer la haute qualité */
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: optimize-quality;
 }
 
-/* Contenu à droite (exactement 50% de la largeur) */
+/* Contenu à droite (exactement 50% - COLONNE 2) */
 .home-mosaic li.full-width .full-width-content {
-    flex: 0 0 50%; /* Exactement 50%, ne grandit ni ne rétrécit */
-    width: 50%;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    padding: 2rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
     gap: 1rem;
     background: #fff;
 }
 
-/* Style de la catégorie avec fond coloré */
-.home-mosaic li.full-width .post-category {
+/* Catégorie dans le contenu */
+.home-mosaic li.full-width .full-width-content .post-category {
     display: inline-block;
     background: #e74c3c;
     color: #fff;
@@ -376,95 +374,76 @@
     font-weight: 600;
     text-transform: uppercase;
     border-radius: 4px;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     text-decoration: none;
     align-self: flex-start;
     max-width: fit-content;
 }
 
-/* Titre pour les cartes full-width */
-.home-mosaic li.full-width .wp-block-latest-posts__post-title {
-    font-size: 2.2rem;
-    line-height: 1.3;
+/* Titre dans le contenu - AU-DESSUS de l'excerpt */
+.home-mosaic li.full-width .full-width-content .wp-block-latest-posts__post-title {
+    font-size: 2rem;
+    line-height: 1.2;
     color: var(--font-color);
     margin: 0 0 1rem 0;
     text-align: left;
-    position: static;
-    z-index: 2;
     font-weight: 700;
+    text-decoration: none;
+    display: block;
 }
 
-.home-mosaic li.full-width .wp-block-latest-posts__post-title:hover {
+.home-mosaic li.full-width .full-width-content .wp-block-latest-posts__post-title:hover {
     color: var(--secondary-color);
     text-decoration: underline;
 }
 
-/* Extrait pour les cartes full-width */
-.home-mosaic li.full-width .wp-block-latest-posts__post-excerpt {
-    font-size: 1.1rem;
+/* Excerpt dans le contenu - EN-DESSOUS du titre */
+.home-mosaic li.full-width .full-width-content .wp-block-latest-posts__post-excerpt {
+    font-size: 1rem;
     line-height: 1.6;
     color: #666;
     margin: 0;
     text-align: left;
 }
 
-/* Meta informations (date, auteur) */
-.home-mosaic li.full-width .post-meta {
-    font-size: 0.9rem;
-    color: #999;
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
-}
-
-/* Système de liens étirés pour full-width */
-.home-mosaic li.full-width .wp-block-latest-posts__post-title::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    cursor: pointer;
-}
-
-/* S'assurer que la catégorie reste cliquable */
-.home-mosaic li.full-width .post-category {
-    position: relative;
-    z-index: 3;
-}
-
 /* Responsive pour les cartes full-width */
 @media (max-width: 1024px) {
     .home-mosaic li.full-width {
-        flex-direction: column;
+        flex-direction: column !important;
         min-height: auto;
+        grid-column: span 2;
     }
 
     .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
-        flex: 0 0 250px;
-        width: 100%;
+        flex: 0 0 250px !important;
+        width: 100% !important;
     }
 
     .home-mosaic li.full-width .full-width-content {
-        flex: 1;
-        width: 100%;
-        padding: 1.5rem;
+        flex: 1 !important;
+        width: 100% !important;
+        padding: 1.5rem !important;
     }
 
-    .home-mosaic li.full-width .wp-block-latest-posts__post-title {
+    .home-mosaic li.full-width .full-width-content .wp-block-latest-posts__post-title {
         font-size: 1.8rem;
     }
 }
 
 @media (max-width: 767px) {
+    .home-mosaic li.full-width {
+        grid-column: span 1;
+    }
+
     .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
-        flex: 0 0 200px;
+        flex: 0 0 200px !important;
     }
 
     .home-mosaic li.full-width .full-width-content {
-        padding: 1rem;
+        padding: 1rem !important;
     }
 
-    .home-mosaic li.full-width .wp-block-latest-posts__post-title {
+    .home-mosaic li.full-width .full-width-content .wp-block-latest-posts__post-title {
         font-size: 1.5rem;
     }
 }
@@ -490,12 +469,12 @@
     overflow: hidden;
 }
 
-/* Styles préventifs pour les cartes full-width */
+/* Styles préventifs pour les cartes full-width - CORRECTION */
 .home-mosaic li.full-width {
     display: flex !important;
     flex-direction: row !important;
     align-items: stretch;
-    min-height: 200px;
+    min-height: 320px;
     background-color: var(--card-bg);
     box-shadow: var(--card-shadow);
     border: var(--card-border);
@@ -513,54 +492,31 @@
     overflow: hidden;
 }
 
-.home-mosaic li.full-width .wp-block-latest-posts__featured-image img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    border-radius: 0 !important;
-}
-
-/* Contenu dans les cartes full-width - style préventif */
-.home-mosaic li.full-width > div:not(.wp-block-latest-posts__featured-image),
+/* Contenu dans les cartes full-width - style préventif avec ordre correct */
 .home-mosaic li.full-width .full-width-content {
     flex: 0 0 50% !important;
     width: 50% !important;
-    padding: var(--card-padding) !important;
+    padding: 2rem !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: center !important;
-    gap: var(--spacing-lg);
+    justify-content: flex-start !important;
+    gap: 1rem;
 }
 
-/* Titre dans les cartes full-width */
-.home-mosaic li.full-width .wp-block-latest-posts__post-title {
-    font-size: var(--font-size-h3) !important;
-    line-height: var(--line-height-heading) !important;
-    color: var(--card-title-color) !important;
-    text-decoration: none !important;
-    margin: 0 !important;
-    font-weight: var(--font-weight-bold) !important;
+/* S'assurer que le titre et l'excerpt sont dans le bon ordre */
+.home-mosaic li.full-width .full-width-content .wp-block-latest-posts__post-title {
+    order: 2 !important;
+    margin-bottom: 1rem !important;
 }
 
-/* Extrait dans les cartes full-width */
-.home-mosaic li.full-width .wp-block-latest-posts__post-excerpt {
-    color: var(--card-text-color) !important;
-    font-size: var(--font-size-base) !important;
-    line-height: var(--line-height-base) !important;
-    margin: 0 !important;
+.home-mosaic li.full-width .full-width-content .wp-block-latest-posts__post-excerpt {
+    order: 3 !important;
+    margin-top: 0 !important;
 }
 
-/* Catégorie dans les cartes full-width */
-.home-mosaic li.full-width .post-category {
-    background-color: var(--category-bg) !important;
-    color: var(--category-text) !important;
-    padding: var(--spacing-xs) var(--spacing-sm) !important;
-    border-radius: var(--border-radius-sm) !important;
-    font-size: var(--font-size-small) !important;
-    font-weight: var(--font-weight-medium) !important;
-    display: inline-block !important;
-    margin-bottom: var(--spacing-sm) !important;
-    align-self: flex-start !important;
+.home-mosaic li.full-width .full-width-content .post-category {
+    order: 1 !important;
+    margin-bottom: 1rem !important;
 }
 
 /* =====================================================================
@@ -647,4 +603,210 @@
 .home-mosaic li:hover {
     transform: var(--card-hover-transform);
     box-shadow: var(--card-hover-shadow);
+}
+
+/* =====================================================================
+ * 10. OVERRIDES FULL-WIDTH (FORCE 2 COLONNES INTERNES)
+ * ===================================================================== */
+
+/* Forcer la carte full-width (déjà span 3) à utiliser une grille interne 2 colonnes */
+.home-mosaic li.full-width {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-auto-rows: auto;
+    gap: 0;
+    align-items: stretch;
+    padding: 0 !important;
+}
+
+/* Image = colonne 1 (prend toute la hauteur disponible) */
+.home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    height: 100%;
+    display: block;
+}
+
+.home-mosaic li.full-width .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Cas idéal : wrapper présent */
+.home-mosaic li.full-width .full-width-content {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 2rem;
+    gap: 1rem;
+    background:#fff;
+}
+
+/* Si PAS de wrapper : placer directement titre + excerpt en colonne 2 */
+.home-mosaic li.full-width > .wp-block-latest-posts__post-title,
+.home-mosaic li.full-width > .wp-block-latest-posts__post-excerpt {
+    grid-column: 2;
+    width: 100%;
+    background:#fff;
+    padding: 1.75rem 2rem 0 2rem;
+}
+
+.home-mosaic li.full-width > .wp-block-latest-posts__post-excerpt {
+    padding: 0 2rem 2rem 2rem;
+    margin-top: .25rem;
+}
+
+/* Annuler l'ancien masquage (display:none) */
+.home-mosaic li.full-width > *:not(.wp-block-latest-posts__featured-image):not(.full-width-content) {
+    display: block !important;
+}
+
+/* Style interne unifié */
+.home-mosaic li.full-width .wp-block-latest-posts__post-title {
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 700;
+    margin: 0 0 .75rem 0;
+    text-decoration: none;
+    color: var(--font-color);
+}
+
+.home-mosaic li.full-width .wp-block-latest-posts__post-title:hover {
+    color: var(--secondary-color);
+}
+
+/* Excerpt */
+.home-mosaic li.full-width .wp-block-latest-posts__post-excerpt {
+    font-size: 1rem;
+    line-height: 1.55;
+    color:#555;
+    margin: 0;
+}
+
+/* Responsive : pile verticalement */
+@media (max-width: 1024px) {
+    .home-mosaic li.full-width {
+        grid-template-columns: 1fr !important;
+    }
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+        grid-column: 1;
+        grid-row: 1;
+        height: 260px;
+    }
+    .home-mosaic li.full-width .full-width-content,
+    .home-mosaic li.full-width > .wp-block-latest-posts__post-title,
+    .home-mosaic li.full-width > .wp-block-latest-posts__post-excerpt {
+        grid-column: 1;
+        padding: 1.25rem 1.5rem;
+    }
+    .home-mosaic li.full-width > .wp-block-latest-posts__post-excerpt {
+        padding-top: .25rem;
+    }
+}
+@media (max-width: 600px) {
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+        height: 200px;
+    }
+    .home-mosaic li.full-width .wp-block-latest-posts__post-title {
+        font-size: 1.55rem;
+    }
+}
+
+/* ===== FIX FULL-WIDTH (2 COLONNES : IMAGE | CONTENU) ===== */
+.home-mosaic li.full-width {
+    display: flex !important;
+    flex-direction: row !important;
+    grid-template-columns: none !important; /* annule display:grid précédent */
+}
+
+.home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+    flex: 0 0 50% !important;
+    max-width: 50%;
+    height: 100%;
+    display: block;
+}
+
+.home-mosaic li.full-width .wp-block-latest-posts__featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.home-mosaic li.full-width .full-width-content {
+    flex: 1 1 50% !important;
+    max-width: 50%;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    padding: 5rem!important;
+    gap: 1rem;
+    background: #fff;
+}
+
+/* Avant que le JS crée le wrapper, empêcher que titre + excerpt se placent côte à côte */
+.home-mosaic li.full-width > .wp-block-latest-posts__post-title,
+.home-mosaic li.full-width > .wp-block-latest-posts__post-excerpt {
+    /* Temporairement forcer largeur 50% pour éviter une 3ème colonne perçue */
+    flex: 1 1 100%;
+    max-width: 100%;
+    padding: 2rem;
+}
+
+/* Après regroupement (wrapper présent) : style final */
+.home-mosaic li.full-width .full-width-content > .wp-block-latest-posts__post-title {
+    padding: 0;
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: 0 0 .75rem 0;
+}
+
+.home-mosaic li.full-width .full-width-content > .wp-block-latest-posts__post-excerpt {
+    padding: 0;
+    margin: 0;
+    line-height: 1.55;
+    font-size: 1rem;
+    color: #555;
+}
+
+/* Supprimer la duplication visuelle une fois le wrapper en place */
+.home-mosaic li.full-width.fullwidth-wrapped > .wp-block-latest-posts__post-title,
+.home-mosaic li.full-width.fullwidth-wrapped > .wp-block-latest-posts__post-excerpt {
+    display: none !important;
+}
+
+/* Hover */
+.home-mosaic li.full-width .full-width-content .wp-block-latest-posts__post-title:hover {
+    color: var(--secondary-color);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .home-mosaic li.full-width {
+        flex-direction: column !important;
+    }
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image,
+    .home-mosaic li.full-width .full-width-content {
+        max-width: 100% !important;
+        flex: 0 0 auto;
+    }
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+        height: 260px;
+    }
+    .home-mosaic li.full-width .full-width-content {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .home-mosaic li.full-width .wp-block-latest-posts__featured-image {
+        height: 200px;
+    }
+    .home-mosaic li.full-width .full-width-content > .wp-block-latest-posts__post-title {
+        font-size: 1.55rem;
+    }
 }

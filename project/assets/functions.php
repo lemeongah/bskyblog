@@ -21,9 +21,9 @@ function theme_enqueue_styles()
     wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css');
      wp_enqueue_style(
             'site-vars',
-            get_stylesheet_directory_uri() . '/assets/style.css',
+            get_stylesheet_directory_uri() . '/style.css',
             [],
-            filemtime(get_stylesheet_directory() . '/assets/style.css')
+            '1.0.0'
         );
 
         // 2) CSS partagé depuis le CDN (toujours la dernière version)
@@ -449,3 +449,44 @@ function force_high_quality_images($attr, $attachment, $size) {
     }
     return $attr;
 }
+
+// ========================================
+// FOOTER NETWORK LINKS - Chargement depuis CDN static
+// ========================================
+
+// Utilitaire: fetch + cache d'un snippet CDN
+function lemeon_fetch_snippet_cdn($name, $ttl = 600) { // TTL 10 min
+    $key  = 'lemeon_snip_' . sanitize_key($name);
+    $html = get_transient($key);
+
+    if ($html === false) {
+        $url = 'https://static.le-meon.com/snippets/' . rawurlencode($name) . '.html';
+        $res = wp_remote_get($url, ['timeout' => 5, 'redirection' => 2]);
+
+        if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) === 200) {
+            $html = wp_remote_retrieve_body($res);
+        } else {
+            $html = ''; // fallback silencieux
+        }
+        set_transient($key, $html, $ttl);
+    }
+    return $html;
+}
+
+// Hook GeneratePress: place le bloc juste après le footer
+add_action('generate_after_footer', function () {
+    $snippet = lemeon_fetch_snippet_cdn('footer-links', 600);
+    if ($snippet) {
+        echo '<div class="footer-links-shared" role="complementary">' . $snippet . '</div>';
+    }
+}, 20);
+
+// Route de purge pour admins: ?flush_shared_footer=1
+add_action('init', function () {
+    if (is_user_logged_in() && current_user_can('manage_options') && isset($_GET['flush_shared_footer'])) {
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_lemeon_snip_%' OR option_name LIKE '_transient_timeout_lemeon_snip_%'");
+        wp_redirect(remove_query_arg('flush_shared_footer'));
+        exit;
+    }
+});

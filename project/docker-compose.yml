@@ -13,7 +13,7 @@ services:
 
   wordpress:
     build: .
-    user: "33:33"
+    user: "1001:1001"
     depends_on:
       - db
     ports:
@@ -43,7 +43,7 @@ services:
       WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
       PHP_MEMORY_LIMIT: 512M
     entrypoint: wp
-    user: "33:33"
+    user: "1001:1001"
 
 volumes:
   bskyblog_db_data:

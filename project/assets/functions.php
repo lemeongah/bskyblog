@@ -251,11 +251,21 @@ function add_mosaic_click_handler() {
     <?php
 }
 
-// Google Analytics (gtag) - Ajouter votre ID de mesure ////
+// ========================================
+// GOOGLE ANALYTICS (GTAG)
+// ========================================
+// Configuration: Ajouter GTAG_ID dans votre fichier .env
+// Exemple: GTAG_ID=G-XXXXXXXXXX
 function add_google_analytics()
 {
-    // TODO: Remplacer G-XXXXXXXXXX par le vrai ID de propriété Google Analytics
-    $measurement_id = 'G-LB7VMHMSVF';
+    // Récupérer l'ID de mesure depuis la variable d'environnement
+    $measurement_id = getenv('GTAG_ID') ?: 'G-LB7VMHMSVF';
+
+    // Ne charger gtag que si un ID est fourni
+    if (empty($measurement_id)) {
+        return;
+    }
+
     ?>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr($measurement_id); ?>"></script>

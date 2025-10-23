@@ -254,7 +254,7 @@ function add_mosaic_click_handler() {
 // Google Analytics (gtag) - Ajouter votre ID de mesure
 function add_google_analytics()
 {
-    // TODO: Remplacer G-XXXXXXXXXX par votre vrai ID de propriété Google Analytics
+    // TODO: Remplacer G-XXXXXXXXXX par le vrai ID de propriété Google Analytics
     $measurement_id = 'G-LB7VMHMSVF';
     ?>
     <!-- Google tag (gtag.js) -->

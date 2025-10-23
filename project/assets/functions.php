@@ -251,6 +251,25 @@ function add_mosaic_click_handler() {
     <?php
 }
 
+// Google Analytics (gtag) - Ajouter votre ID de mesure
+function add_google_analytics()
+{
+    // TODO: Remplacer G-XXXXXXXXXX par votre vrai ID de propriété Google Analytics
+    $measurement_id = 'G-LB7VMHMSVF';
+    ?>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr($measurement_id); ?>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '<?php echo esc_js($measurement_id); ?>');
+    </script>
+    <?php
+}
+add_action('wp_head', 'add_google_analytics');
+
 // Ajouter le favicon avec la bonne URL selon l'environnement
 function add_favicon()
 {

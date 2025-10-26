@@ -129,7 +129,6 @@ Version: 1.0
     --transition-fast: 0.15s ease;
     --transition-normal: 0.3s ease;
     --transition-slow: 0.5s ease;
-
     /* === BREAKPOINTS (pour référence dans les media queries) === */
     --breakpoint-mobile: 767px;
     --breakpoint-tablet: 1024px;

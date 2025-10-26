@@ -9,11 +9,11 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - bskyblog_db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
 
   wordpress:
     build: .
-    user: "1001:1001"
+    user: "33:33"
     depends_on:
       - db
     ports:
@@ -24,26 +24,51 @@ services:
       WORDPRESS_DB_NAME: ${DB_NAME}
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      # Variables du site accessibles dans PHP via getenv()
+      SITE_NAME: ${SITE_NAME}
+      SITE_TITLE: ${SITE_TITLE}
+      SITE_DESCRIPTION: ${SITE_DESCRIPTION}
+      SITE_COPYRIGHT: ${SITE_COPYRIGHT}
+      SITE_URL: ${SITE_URL}
+      PROD_URL: ${PROD_URL}
+      FOLDER_NAME: ${FOLDER_NAME}
     volumes:
-      - ./wp:/var/www/html
-      - ./assets:/var/www/html/wp-content/themes/generatepress-child/
+      - wordpress_data:/var/www/html
+      - generatepress_child_data:/var/www/html/wp-content/themes/generatepress-child/
+      - ./assets:/var/www/html/wp-content/themes/generatepress-child/assets/
       - ./assets:/var/www/html/wp-content/uploads/custom
-
-      # Le fichier styles.css sera accessible dans /var/www/html/wp-content/uploads/custom/css/styles.css
-      # via le montage du dossier assets ci-dessus
 
   wpcli:
     image: wordpress:cli
     depends_on:
       - wordpress
     volumes:
-      - ./wp:/var/www/html
+      - wordpress_data:/var/www/html
+      - generatepress_child_data:/var/www/html/wp-content/themes/generatepress-child/
       - ./assets:/assets
     environment:
       WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
       PHP_MEMORY_LIMIT: 512M
+      # Variables de base de données (pour wp-config.php)
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${DB_NAME}
+      WORDPRESS_DB_USER: ${DB_USER}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      # Variables du site pour les scripts WP-CLI
+      SITE_NAME: ${SITE_NAME}
+      SITE_TITLE: ${SITE_TITLE}
+      SITE_DESCRIPTION: ${SITE_DESCRIPTION}
+      SITE_URL: ${SITE_URL}
+      ADMIN_USER: ${ADMIN_USER}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
     entrypoint: wp
-    user: "1001:1001"
+    user: "33:33"
 
 volumes:
-  bskyblog_db_data:
+  db_data:
+    name: ${COMPOSE_PROJECT_NAME}_db_data
+  wordpress_data:
+    name: ${COMPOSE_PROJECT_NAME}_wordpress_data
+  generatepress_child_data:
+    name: ${COMPOSE_PROJECT_NAME}_generatepress_child

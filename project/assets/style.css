@@ -135,3 +135,6 @@ Version: 1.0
     --breakpoint-tablet: 1024px;
     --breakpoint-desktop: 1200px;
 }
+.home-mosaic li.full-width.restructured {
+    max-height: 500px!important;
+}

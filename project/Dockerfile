@@ -33,3 +33,11 @@ RemoteIPInternalProxy 192.168.0.0/16\n\
 ServerTokens Prod\n\
 ServerSignature Off' > /etc/apache2/conf-available/proxy-https.conf \
     && a2enconf proxy-https
+
+# Fix permissions for plugin installation and uploads
+RUN mkdir -p /var/www/html/wp-content/upgrade && \
+    mkdir -p /var/www/html/wp-content/uploads && \
+    chown -R 33:33 /var/www/html && \
+    find /var/www/html -type d -exec chmod 755 {} \; && \
+    find /var/www/html -type f -exec chmod 644 {} \;
+
